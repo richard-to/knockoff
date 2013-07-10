@@ -114,16 +114,27 @@
 
     var ControllerProvider = function() {
         var controllers = {};
-        this.register = function(name, fn, env) {
-            controllers[name] = {fn: fn, params: {}};
-            if (env !== undefined) {
-                controllers[name].params.env = env;
+        this.register = function(name, fn, moduleDeps) {
+            controllers[name] = {fn: fn};
+            if (moduleDeps !== undefined) {
+                controllers[name].moduleDeps = moduleDeps;
             }
         };
         this.get = function(injector) {
-            return function(name) {
-                var fn = controllers[name].fn;
-                var params = controllers[name].params;
+            return function(name, vars) {
+                var meta = controllers[name];
+                var params = {};
+
+                if (meta.moduleDeps !== undefined) {
+                    meta.moduleDeps.run();
+                    params.env = meta.moduleDeps.env;
+                }
+
+                if (vars !== undefined) {
+                    _.extend(params, vars);
+                }
+
+                var fn = meta.fn;
                 injector.instantiate(fn, params);
             };
         };
@@ -159,7 +170,6 @@
     };
 
     var ModuleHooks = {
-        CONTROLLER: 'controller',
         PROVIDER: 'provider',
         SERVICE: 'service',
         FACTORY: 'factory',
@@ -171,12 +181,10 @@
         this.injector = injector;
         this.env = env;
         this.isRunning = false;
-        this._config = null;
 
         this.moduleDeps = moduleDeps || [];
         this.hooks = [];
         this.runFn = {};
-        this.runFn[ModuleHooks.CONTROLLER] = _.bind(this.runController, this);
         this.runFn[ModuleHooks.PROVIDER] = _.bind(this.runProvider, this);
         this.runFn[ModuleHooks.SERVICE] = _.bind(this.runService, this);
         this.runFn[ModuleHooks.FACTORY] = _.bind(this.runFactory, this);
@@ -188,8 +196,14 @@
         return this;
     };
 
+    Module.prototype.config = function(fn) {
+        this.injector.invoke(fn);
+        return this;
+    };
+
     Module.prototype.controller = function(name, fn) {
-        this.hooks.push({type: ModuleHooks.CONTROLLER, name: name, fn: fn});
+        var controllerProvider = this.injector.getDep('controllerProvider');
+        controllerProvider.register(name, fn, this);
         return this;
     };
 
@@ -210,17 +224,6 @@
 
     Module.prototype.value = function(name, fn) {
         this.hooks.push({type: ModuleHooks.VALUE, name: name, fn: fn});
-        return this;
-    };
-
-    Module.prototype.config = function(fn) {
-        this._config = fn;
-        return this;
-    };
-
-    Module.prototype.runController = function(name, fn) {
-        var controllerProvider = this.injector.getDep('controllerProvider');
-        controllerProvider.register(name, fn, this.env);
         return this;
     };
 
@@ -256,29 +259,19 @@
         return this;
     };
 
-    Module.prototype.runConfig = function(fn) {
-        this.injector.invoke(fn);
-        return this;
-    };
-
     Module.prototype.run = function(fn) {
-        if (this.isRunning === true) {
-            return this;
-        }
+        if (this.isRunning === false) {
 
-        if (this._config !== null) {
-            this.runConfig(this._config);
-        }
+            var i = 0;
+            for (i = 0; i < this.moduleDeps.length; ++i) {
+                this.runModule(this.moduleDeps[i]);
+            }
 
-        var i = 0;
-        for (i = 0; i < this.moduleDeps.length; ++i) {
-            this.runModule(this.moduleDeps[i]);
-        }
-
-        var hook = null;
-        for (i = 0; i < this.hooks.length; ++i) {
-            hook = this.hooks[i];
-            this.runFn[hook.type](hook.name, hook.fn);
+            var hook = null;
+            for (i = 0; i < this.hooks.length; ++i) {
+                hook = this.hooks[i];
+                this.runFn[hook.type](hook.name, hook.fn);
+            }
         }
 
         if (fn !== undefined) {
@@ -317,10 +310,9 @@
         };
     };
 
-    var App = function(el, suffix) {
+    var Knockoff = function() {
         this.rootEnv = new Env();
-        this.rootEnv.setEl(el);
-        this.providerSuffix = suffix || 'Provider';
+        this.providerSuffix = 'Provider';
         this.providerCache = {};
         this.injector = new Injector(this.providerCache, this.providerSuffix);
         this.provider = new Provider(this.injector, this.providerCache, this.providerSuffix);
@@ -331,7 +323,7 @@
         this.provider.provider('controller', ControllerProvider);
     };
 
-    App.prototype.module = function(name, moduleDeps) {
+    Knockoff.prototype.module = function(name, moduleDeps) {
         var moduleProvider = this.injector.getDep('moduleProvider');
         if (moduleProvider.has(name) === false) {
             var childEnv = this.rootEnv.addChild();
@@ -341,10 +333,25 @@
         return moduleService(name);
     };
 
-    var Knockoff = {App: App};
+    var knockoff = new Knockoff();
 
-    window.Knockoff = Knockoff;
+    knockoff.provider.provider('router', function(controller) {
+        var controllerLoader = controller;
+        var router = new Backbone.Router();
+
+        this.add = function(route, name, controllerName) {
+            router.route(route, name, function() {
+                controllerLoader(controllerName);
+            });
+        };
+
+        this.get = function() {
+            return router;
+        };
+    });
+
+    window.knockoff = knockoff;
     if (typeof define === "function" && define.amd) {
-        define("Knockoff", [], function() { return Knockoff; });
+        define("knockoff", [], function() { return knockoff; });
     }
 })(window);

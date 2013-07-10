@@ -291,6 +291,10 @@
             }
         };
 
+        this.has = function(name) {
+            return (moduleEnv[name] !== undefined);
+        };
+
         this.get = function(injector) {
             return function(name) {
                 if (moduleCache[name] === undefined) {
@@ -321,8 +325,10 @@
 
     App.prototype.module = function(name, moduleDeps, el) {
         var moduleProvider = this.injector.getDep('moduleProvider');
-        var childEnv = this.rootEnv.addChild(el);
-        moduleProvider.register(name, moduleDeps, childEnv);
+        if (moduleProvider.has(name) === false) {
+            var childEnv = this.rootEnv.addChild(el);
+            moduleProvider.register(name, moduleDeps, childEnv);
+        }
         var moduleService = moduleProvider.get(this.injector);
         return moduleService(name);
     };

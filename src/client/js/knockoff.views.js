@@ -1,10 +1,10 @@
 (function(window, undefined) {
 
-    if (window.Knockoff === undefined) {
+    if (window.knockoff === undefined) {
         throw new Error('Knockoff library is undefined!');
     }
 
-    var Knockoff = window.Knockoff;
+    var knockoff = window.knockoff;
 
     var MixinConfigureProps = function(options, propList) {
         if (this.options) options = _.extend({}, _.result(this, 'options'), options);
@@ -54,10 +54,8 @@
     });
     ListView.extend = Backbone.View.extend;
 
-    var View = {
+    knockoff.view = {
         List: ListView,
         ListItem: ListItemView
     };
-
-    Knockoff.View = View;
 })(window);

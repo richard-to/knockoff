@@ -1,5 +1,8 @@
 (function(window, undefined) {
 
+    function Value(value) {
+        this.get = value;
+    }
 
     var Injector = function(providerCache, providerSuffix) {
         this.depsRegExp = new RegExp(/\((.*)\) *\{/);
@@ -18,7 +21,9 @@
             this.instanceCache[name] = provider.get;
         }
         var dep = this.instanceCache[name];
-        if (_.isFunction(dep)) {
+        if (dep instanceof Value) {
+            return dep.get;
+        } else if (_.isFunction(dep)) {
             return (dep.prototype !== undefined) ? this.instantiate(dep) : this.invoke(dep);
         } else {
             return dep;
@@ -96,6 +101,10 @@
 
     Provider.prototype.factory = function(name, fn) {
         return this.provider(name, {get: fn});
+    };
+
+    Provider.prototype.value = function(name, fn) {
+        return this.factory(name, new Value(fn));
     };
 
     Provider.prototype.service = function(name, fn) {

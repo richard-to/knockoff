@@ -163,12 +163,14 @@
         VALUE: 'value'
     };
 
-    var Module = function(name, env, injector) {
+    var Module = function(name, moduleDeps, env, injector) {
         this.name = name;
         this.injector = injector;
         this.env = env;
-
+        this.isRunning = false;
         this._config = null;
+
+        this.moduleDeps = moduleDeps || [];
         this.hooks = [];
         this.runFn = {};
         this.runFn[ModuleHooks.CONTROLLER] = _.bind(this.runController, this);
@@ -238,6 +240,14 @@
         return this;
     };
 
+    Module.prototype.runModule = function(name) {
+        var moduleProvider = this.injector.getDep('moduleProvider');
+        var moduleService = moduleProvider.get(this.injector);
+        var module = moduleService(name);
+        module.run();
+        return this;
+    };
+
     Module.prototype.runConfig = function(fn) {
         this.injector.invoke(fn);
         return this;
@@ -245,12 +255,21 @@
 
 
     Module.prototype.run = function(fn) {
+        if (this.isRunning === true) {
+            return this;
+        }
+
         if (this._config !== null) {
             this.runConfig(this._config);
         }
 
+        var i = 0;
+        for (i = 0; i < this.moduleDeps.length; ++i) {
+            this.runModule(this.moduleDeps[i]);
+        }
+
         var hook = null;
-        for (var i = 0; i < this.hooks.length; ++i) {
+        for (i = 0; i < this.hooks.length; ++i) {
             hook = this.hooks[i];
             this.runFn[hook.type](hook.name, hook.fn);
         }
@@ -258,15 +277,17 @@
         if (fn !== undefined) {
             this.injector.invoke(fn);
         }
+
+        this.isRunning = true;
         return this;
     };
 
     var ModuleProvider = function() {
         var moduleCache = {};
         var moduleEnv = {};
-        this.register = function(name, childEnv) {
-            if (moduleEnv[name] !== undefined) {
-                moduleEnv[name] = childEnv;
+        this.register = function(name, moduleDeps, childEnv) {
+            if (moduleEnv[name] === undefined) {
+                moduleEnv[name] = {childEnv: childEnv, moduleDeps: moduleDeps};
             }
         };
 
@@ -274,7 +295,11 @@
             return function(name) {
                 if (moduleCache[name] === undefined) {
                     moduleCache[name] = injector.instantiate(
-                        Module, {name: name, env: moduleEnv[name]});
+                        Module, {
+                            name: name,
+                            moduleDeps: moduleEnv[name].moduleDeps || [],
+                            env: moduleEnv[name].childEnv
+                        });
                 }
                 return moduleCache[name];
             };
@@ -294,10 +319,10 @@
         this.provider.provider('controller', ControllerProvider);
     };
 
-    App.prototype.module = function(name, el) {
+    App.prototype.module = function(name, moduleDeps, el) {
         var moduleProvider = this.injector.getDep('moduleProvider');
         var childEnv = this.rootEnv.addChild(el);
-        moduleProvider.register(name, childEnv);
+        moduleProvider.register(name, moduleDeps, childEnv);
         var moduleService = moduleProvider.get(this.injector);
         return moduleService(name);
     };

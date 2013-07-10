@@ -13,11 +13,20 @@ var MsgComposeView = Backbone.View.extend({
     tagName: 'div',
     template: _.template($("#ko-composeview-tmpl").html()),
     initialize: function() {
-        _.bindAll(this, 'render');
+        _.bindAll(this, 'render', 'submit');
+    },
+    events: {
+        'click .ko-submit': 'submit'
     },
     render: function() {
         this.$el.html(this.template());
         return this;
+    },
+    submit: function() {
+        this.collection.add(new this.collection.model({
+            msg: this.$el.find('.ko-text').val()
+        }));
+        return false;
     }
 });
 
@@ -35,11 +44,10 @@ knockoff.module('msgModule', ['msgServices'])
     .controller('msgController', function(env, MsgList, ListView, MsgComposeView) {
         var msgList = new MsgList();
         msgList.add(new msgList.model({name: 'John Doe'}));
-
-        var msgView = new ListView({collection: msgList});
-        var composeView = new MsgComposeView({collection: msgList});
-
         env.msgList = msgList;
+
+        var msgView = new ListView({collection: env.msgList});
+        var composeView = new MsgComposeView({collection: env.msgList});
         env.$el.find(".ko-listview").html(msgView.render().el);
         env.$el.find(".ko-composeview").html(composeView.render().el);
     });

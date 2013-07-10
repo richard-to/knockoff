@@ -129,17 +129,20 @@
         };
     };
 
-    var Env = function(el) {
-        this.$el = el instanceof $ ? el : $(el);
-        this.el = this.$el[0];
-        this.name = this.$el.attr('class').split(' ')[0];
+    var Env = function() {
+        this.name = _.uniqueId('env_');
         this.parent = null;
         this.children = {};
         this.data = {};
     };
 
-    Env.prototype.addChild = function(el) {
-        var childEnv = new Env(el);
+    Env.prototype.setEl = function(el) {
+        this.$el = el instanceof $ ? el : $(el);
+        this.el = this.$el[0];
+    };
+
+    Env.prototype.addChild = function() {
+        var childEnv = new Env();
         childEnv.parent = this;
         this.children[childEnv.name] = childEnv;
         return childEnv;
@@ -178,6 +181,11 @@
         this.runFn[ModuleHooks.SERVICE] = _.bind(this.runService, this);
         this.runFn[ModuleHooks.FACTORY] = _.bind(this.runFactory, this);
         this.runFn[ModuleHooks.VALUE] = _.bind(this.runValue, this);
+    };
+
+    Module.prototype.el = function(el) {
+        this.env.setEl(el);
+        return this;
     };
 
     Module.prototype.controller = function(name, fn) {
@@ -310,7 +318,8 @@
     };
 
     var App = function(el, suffix) {
-        this.rootEnv = new Env(el);
+        this.rootEnv = new Env();
+        this.rootEnv.setEl(el);
         this.providerSuffix = suffix || 'Provider';
         this.providerCache = {};
         this.injector = new Injector(this.providerCache, this.providerSuffix);
@@ -322,10 +331,10 @@
         this.provider.provider('controller', ControllerProvider);
     };
 
-    App.prototype.module = function(name, moduleDeps, el) {
+    App.prototype.module = function(name, moduleDeps) {
         var moduleProvider = this.injector.getDep('moduleProvider');
         if (moduleProvider.has(name) === false) {
-            var childEnv = this.rootEnv.addChild(el);
+            var childEnv = this.rootEnv.addChild();
             moduleProvider.register(name, moduleDeps, childEnv);
         }
         var moduleService = moduleProvider.get(this.injector);

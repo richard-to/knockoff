@@ -23,14 +23,14 @@ var TestComposeView = Backbone.View.extend({
 
 var app = new Knockoff.App(".ko-app");
 
-app.module('testServices', [], '.ko-test-module')
+app.module('testServices', [])
     .value('TestModel', TestModel)
     .value('TestList', TestList)
     .value('ListView', Knockoff.View.List)
     .value('ComposeView', TestComposeView);
 
-
-app.module('testModule', ['testServices'], '.ko-test-module')
+app.module('testModule', ['testServices'])
+    .el('.ko-test-module')
     .controller('testController', function(env, TestList, ListView, ComposeView) {
         var testList = new TestList();
         testList.add(new testList.model({name: 'Test'}));

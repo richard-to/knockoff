@@ -13,10 +13,10 @@
 
     var View = function(options, inject) {
         this.injector = knockoff.injector;
-        inject = inject || {};
-        for (var depName in inject) {
-            options[depName] = this.injector.getDep(inject[depName]);
         this.propList = options.propList || this.propList;
+        inject = inject || [];
+        for (var i = 0; i < inject.length; ++i) {
+            options[inject[i]] = this.injector.getDep(inject[i]);
         }
         options = options || {};
         MixinConfigureProps.apply(this, [options, this.propList]);

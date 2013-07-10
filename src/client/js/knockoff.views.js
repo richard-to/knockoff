@@ -11,7 +11,21 @@
         _.extend(this, _.pick(options, propList));
     };
 
-    var ListItemView = Backbone.View.extend({
+    var View = function(options, inject) {
+        this.injector = knockoff.injector;
+        this.propList = options.propList || [];
+        inject = inject || {};
+        for (var depName in inject) {
+            options[depName] = this.injector.getDep(inject[depName]);
+        }
+        options = options || {};
+        MixinConfigureProps.apply(this, [options, this.propList]);
+        Backbone.View.apply(this, [options]);
+    };
+    _.extend(View.prototype, Backbone.View.prototype);
+    View.extend = Backbone.View.extend;
+
+    var ListItemView = View.extend({
         tagName: 'li',
         template: _.template($("#ko-listitemview-tmpl").html()),
         initialize: function() {
@@ -23,14 +37,8 @@
         }
     });
 
-    var ListView = function(options) {
-        var propList = ['itemView'];
-        options = options || {};
-        this._configureProps(options || {}, propList);
-        Backbone.View.apply(this, [options]);
-    };
-
-    _.extend(ListView.prototype, Backbone.View.prototype, {
+    var ListView = View.extend({
+        propList: ['itemView'],
         tagName: 'ul',
         itemView: ListItemView,
         initialize: function() {
@@ -49,12 +57,12 @@
                 model: item
             });
             this.$el.append(view.render().el);
-        },
-        _configureProps: MixinConfigureProps
+        }
     });
-    ListView.extend = Backbone.View.extend;
+    ListView.extend = View.extend;
 
-    knockoff.view = {
+    knockoff.ui = {
+        View: View,
         List: ListView,
         ListItem: ListItemView
     };

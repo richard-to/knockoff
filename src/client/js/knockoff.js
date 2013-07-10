@@ -253,7 +253,6 @@
         return this;
     };
 
-
     Module.prototype.run = function(fn) {
         if (this.isRunning === true) {
             return this;

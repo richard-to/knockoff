@@ -4,109 +4,88 @@ module.exports = function(grunt) {
 
         distdir: 'dist',
 
-        srcdir: 'src',
-
-        subdir: {
-            atpl: '/templates',
-            css: '/static/css',
-            img: '/static/img',
-            js: '/static/js',
-            lib: '/static/lib',
-            scss: '/static/scss'
-         },
-
-        libpath: {
-            backbone: '<%= srcdir %><%= subdir.lib %>/backbone.js',
-            jquery: '<%= srcdir %><%= subdir.lib %>/jquery.js',
-            underscore: '<%= srcdir %><%= subdir.lib %>/underscore.js',
-            bootstrap: {
-                css: '<%= srcdir %><%= subdir.lib %>/bootstrap/css/bootstrap.css',
-                img: '<%= srcdir %><%= subdir.lib %>/bootstrap/img'
-            }
-        },
-
-        srcpath: {
-            app: '<%= srcdir %>/app.py',
-            atpl: '<%= srcdir %><%= subdir.atpl %>/*.html',
-            css: '<%= srcdir %><%= subdir.css %>/main.css',
-            js: [
-                '<%= srcdir %><%= subdir.js %>/**/*.js',
-                '!<%= srcdir %><%= subdir.js %>/**/*.spec.js'
-            ],
-            tpl: '<%= srcdir %><%= subdir.js %>/**/*.tpl.html',
-            scss: '<%= srcdir %><%= subdir.scss %>/main.scss',
-            unit: '<%= srcdir %><%= subdir.js %>/**/*.spec.js'
-        },
-
-        distpath: {
-            app: '<%= distdir %>/app.py',
-            atpl: '<%= distdir %><%= subdir.atpl %>/*.html',
-            css: '<%= distdir %><%= subdir.css %>/main.css',
-            js: '<%= distdir %><%= subdir.js %>/main.js',
-            tpl: '<%= distdir %><%= subdir.js %>/**/*.tpl.html',
-        },
-
         clean: ['<%= distdir %>'],
 
         copy: {
+            server: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'src/server',
+                        src: ['app.py'],
+                        dest: '<%= distdir %>/'
+                    }
+                ]
+            },
+            components: {
+                files: [
+                    {
+                        expand: true,
+                        flatten: true,
+                        cwd: 'components',
+                        src: [
+                            'backbone/backbone.js',
+                            'jquery/jquery.js',
+                            'jquery-ui/ui/jquery-ui.js',
+                            'jquery-ui/ui/jquery.ui.sortable.js',
+                            'underscore/underscore.js'
+                        ],
+                        dest: '<%= distdir %>/static/js'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'components/bootstrap/docs/assets/css',
+                        src: [
+                            'bootstrap.css',
+                            'bootstrap-responsive.css'
+                        ],
+                        dest: '<%= distdir %>/static/css'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'components/bootstrap/docs/assets/img',
+                        src: ['glyphicons-*.png'],
+                        dest: '<%= distdir %>/static/img'
+                    },
+                ]
+            },
             dist: {
                 files: [
                     {
                         expand: true,
-                        cwd: '<%= srcdir %>',
-                        src: ['*.py', '<%= subdir.atpl %>/*'],
-                        dest: '<%= distdir %>/'
-                    },
-                    {
-                        expand: true,
-                        cwd: '<%= libpath.bootstrap.img/*',
-                        src: ['*'],
-                        dest: '<%= distdir %><%= subdir.img %>/'
-                    },
+                        cwd: 'src/client/js',
+                        src: ['**/*.js', '!**/*.spec.js', '**/*.tpl.html'],
+                        dest: '<%= distdir %>/static/js'
+                    }
                 ]
             }
-        },
-
-        lint: {
-            files: [
-                '<%= srcpath.js[0] %>'
-            ]
         },
 
         jshint: {
             src: [
                 'Gruntfile.js',
-                '<%= srcpath.js %>',
-                '<%= srcpath.unit %>'
+                'src/client/**/*.js'
             ]
+        },
+
+        concat: {
+            templates: {
+                src: ['src/server/templates/index.html'],
+                dest: '<%= distdir %>/templates/index.html',
+                options: {
+                    process: true
+                }
+            }
         },
 
         sass: {
             dist: {
                 options: {
-                    style: 'compressed'
-                },
-                files: {
-                    '<%= distpath.css %>': ['<%= libpath.bootstrap.css %>', '<%= srcpath.scss %>']
-                }
-            },
-            src: {
-                options: {
                     style: 'expanded'
                 },
                 files: {
-                    '<%= srcpath.css %>': ['<%= srcpath.scss %>']
+                    '<%= distdir %>/static/css/main.css': ['src/client/scss/main.scss']
                 }
-            }
-        },
-
-        cssmin: {
-            minify: {
-                expand: true,
-                cwd: '<%= srcdir %><%= subdir.css %>',
-                src: ['main.css'],
-                dest: '<%= distdir %><%= subdir.css %>',
-                ext: '.min.css'
             }
         },
 
@@ -116,30 +95,23 @@ module.exports = function(grunt) {
                 browsers: ['Chrome']
             },
             unit: {
-                configFile: 'karma.conf.js'
-            }
-        },
-
-        uglify: {
-            dist: {
-                files: {
-                    '<%= distpath.js %>': [
-                        '<%= libpath.jquery %>',
-                        '<%= libpath.underscore %>',
-                        '<%= libpath.backbone %>',
-                        '<%= srcpath.js %>'
-                    ]
-                }
+                configFile: 'karma.conf.js',
+                background: true
             }
         },
 
         watch: {
-            options: {
-                livereload: true
-            },
             css: {
-                files: ['<%= srcpath.scss %>'],
-                tasks: ['sass:src']
+                files: ['src/client/scss/main.scss'],
+                tasks: ['sass']
+            },
+            js: {
+                files: ['src/client/js/**/*.js', 'src/client/js/**/*.tpl.html'],
+                tasks: ['jshint', 'copy:dist']
+            },
+            server: {
+                files: ['src/server/**'],
+                tasks: ['copy:server', 'concat:templates']
             }
         }
     });
@@ -147,6 +119,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib');
     grunt.loadNpmTasks('grunt-karma');
 
-    grunt.registerTask('default', ['jshint', 'clean', 'copy', 'uglify', 'sass']);
+    grunt.registerTask('default', ['jshint', 'clean', 'copy', 'concat', 'sass']);
     grunt.registerTask('unit', ['karma']);
 };

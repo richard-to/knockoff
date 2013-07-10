@@ -33,7 +33,7 @@ var MsgComposeView = Backbone.View.extend({
 knockoff.module('msgServices')
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
-    .value('ListView', knockoff.view.List)
+    .value('ListView', knockoff.ui.List)
     .value('MsgComposeView', MsgComposeView);
 
 knockoff.module('msgModule', ['msgServices'])

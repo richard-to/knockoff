@@ -129,7 +129,6 @@
         };
     };
 
-
     var Env = function(el) {
         this.$el = el instanceof $ ? el : $(el);
         this.el = this.$el[0];
@@ -156,43 +155,109 @@
         }
     };
 
+    var ModuleHooks = {
+        CONTROLLER: 'controller',
+        PROVIDER: 'provider',
+        SERVICE: 'service',
+        FACTORY: 'factory',
+        VALUE: 'value'
+    };
+
     var Module = function(name, env, injector) {
         this.name = name;
         this.injector = injector;
         this.env = env;
+
+        this._config = null;
+        this.hooks = [];
+        this.runFn = {};
+        this.runFn[ModuleHooks.CONTROLLER] = _.bind(this.runController, this);
+        this.runFn[ModuleHooks.PROVIDER] = _.bind(this.runProvider, this);
+        this.runFn[ModuleHooks.SERVICE] = _.bind(this.runService, this);
+        this.runFn[ModuleHooks.FACTORY] = _.bind(this.runFactory, this);
+        this.runFn[ModuleHooks.VALUE] = _.bind(this.runValue, this);
     };
 
     Module.prototype.controller = function(name, fn) {
+        this.hooks.push({type: ModuleHooks.CONTROLLER, name: name, fn: fn});
+        return this;
+    };
+
+    Module.prototype.provider = function(name, fn) {
+        this.hooks.push({type: ModuleHooks.PROVIDER, name: name, fn: fn});
+        return this;
+    };
+
+    Module.prototype.service = function(name, fn) {
+        this.hooks.push({type: ModuleHooks.SERVICE, name: name, fn: fn});
+        return this;
+    };
+
+    Module.prototype.factory = function(name, fn) {
+        this.hooks.push({type: ModuleHooks.FACTORY, name: name, fn: fn});
+        return this;
+    };
+
+    Module.prototype.value = function(name, fn) {
+        this.hooks.push({type: ModuleHooks.VALUE, name: name, fn: fn});
+        return this;
+    };
+
+    Module.prototype.config = function(fn) {
+        this._config = fn;
+        return this;
+    };
+
+    Module.prototype.runController = function(name, fn) {
         var controllerProvider = this.injector.getDep('controllerProvider');
         controllerProvider.register(name, fn, this.env);
         return this;
     };
 
-    Module.prototype.provider = function(name, fn) {
+    Module.prototype.runProvider = function(name, fn) {
         var provider = this.injector.getDep('provider');
         provider.provider(name, fn);
         return this;
     };
 
-    Module.prototype.service = function(name, fn) {
+    Module.prototype.runService = function(name, fn) {
         var provider = this.injector.getDep('provider');
         provider.service(name, fn);
         return this;
     };
 
-    Module.prototype.factory = function(name, fn) {
+    Module.prototype.runFactory = function(name, fn) {
         var provider = this.injector.getDep('provider');
         provider.factory(name, fn);
         return this;
     };
 
-    Module.prototype.config = function(fn) {
+    Module.prototype.runValue = function(name, fn) {
+        var provider = this.injector.getDep('provider');
+        provider.value(name, fn);
+        return this;
+    };
+
+    Module.prototype.runConfig = function(fn) {
         this.injector.invoke(fn);
         return this;
     };
 
+
     Module.prototype.run = function(fn) {
-        this.injector.invoke(fn);
+        if (this._config !== null) {
+            this.runConfig(this._config);
+        }
+
+        var hook = null;
+        for (var i = 0; i < this.hooks.length; ++i) {
+            hook = this.hooks[i];
+            this.runFn[hook.type](hook.name, hook.fn);
+        }
+
+        if (fn !== undefined) {
+            this.injector.invoke(fn);
+        }
         return this;
     };
 
@@ -200,7 +265,9 @@
         var moduleCache = {};
         var moduleEnv = {};
         this.register = function(name, childEnv) {
-            moduleEnv[name] = childEnv;
+            if (moduleEnv[name] !== undefined) {
+                moduleEnv[name] = childEnv;
+            }
         };
 
         this.get = function(injector) {

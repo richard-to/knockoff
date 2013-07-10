@@ -1,15 +1,15 @@
-var TestModel = Backbone.Model.extend({
+var MsgModel = Backbone.Model.extend({
     defaults: {
         'name': '',
         'msg': 'No message.'
     }
 });
 
-var TestList = Backbone.Collection.extend({
-    model: TestModel
+var MsgList = Backbone.Collection.extend({
+    model: MsgModel
 });
 
-var TestComposeView = Backbone.View.extend({
+var MsgComposeView = Backbone.View.extend({
     tagName: 'div',
     template: _.template($("#ko-composeview-tmpl").html()),
     initialize: function() {
@@ -21,27 +21,27 @@ var TestComposeView = Backbone.View.extend({
     }
 });
 
-var app = new Knockoff.App(".ko-app");
+knockoff.module('msgServices')
+    .value('MsgModel', MsgModel)
+    .value('MsgList', MsgList)
+    .value('ListView', knockoff.view.List)
+    .value('MsgComposeView', MsgComposeView);
 
-app.module('testServices', [])
-    .value('TestModel', TestModel)
-    .value('TestList', TestList)
-    .value('ListView', Knockoff.View.List)
-    .value('ComposeView', TestComposeView);
-
-app.module('testModule', ['testServices'])
+knockoff.module('msgModule', ['msgServices'])
     .el('.ko-test-module')
-    .controller('testController', function(env, TestList, ListView, ComposeView) {
-        var testList = new TestList();
-        testList.add(new testList.model({name: 'Test'}));
+    .config(function(routerProvider) {
+        routerProvider.add('help', 'help', 'msgController');
+    })
+    .controller('msgController', function(env, MsgList, ListView, MsgComposeView) {
+        var msgList = new MsgList();
+        msgList.add(new msgList.model({name: 'John Doe'}));
 
-        var msgView = new ListView({collection: testList});
-        var composeView = new ComposeView({collection: testList});
+        var msgView = new ListView({collection: msgList});
+        var composeView = new MsgComposeView({collection: msgList});
 
-        env.testList = testList;
+        env.msgList = msgList;
         env.$el.find(".ko-listview").html(msgView.render().el);
         env.$el.find(".ko-composeview").html(composeView.render().el);
-    })
-    .run(function(controller) {
-        controller('testController');
     });
+
+Backbone.history.start();

@@ -73,7 +73,7 @@ module.exports = function(grunt) {
                 src: ['src/server/templates/index.html'],
                 dest: '<%= distdir %>/templates/index.html',
                 options: {
-                    process: true
+                    process: false
                 }
             }
         },

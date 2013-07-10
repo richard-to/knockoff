@@ -22,16 +22,25 @@ var TestComposeView = Backbone.View.extend({
 });
 
 var app = new Knockoff.App(".ko-app");
-var testModule = app.module('test', '.ko-test-module');
-testModule.factory('testModel', TestModel)
-.factory('testList', TestList)
-.controller('testController', ['env', 'testList', function(env, testList) {
-    env.testList = testList.add(new testList.model({name: 'Test'}));
-    var view = new Knockoff.View.List({collection: env.testList});
-    var composeView = new TestComposeView({});
-    env.$el.find(".ko-listview").html(view.render().el);
+var testServices = app.module('testServices', '.ko-test-module');
+testServices.value('TestModel', TestModel)
+.value('TestList', TestList)
+.value('ListView', Knockoff.View.List)
+.value('ComposeView', TestComposeView)
+.run();
+
+var testModule = app.module('testModule', '.ko-test-module');
+testModule.controller('testController', function(env, TestList, ListView, ComposeView) {
+    var testList = new TestList();
+    testList.add(new testList.model({name: 'Test'}));
+
+    var msgView = new ListView({collection: testList});
+    var composeView = new ComposeView({collection: testList});
+
+    env.testList = testList;
+    env.$el.find(".ko-listview").html(msgView.render().el);
     env.$el.find(".ko-composeview").html(composeView.render().el);
-}])
+})
 .run(function(controller) {
     controller('testController');
 });

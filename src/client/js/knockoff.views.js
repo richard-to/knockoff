@@ -16,13 +16,13 @@
 
         options = options || {};
 
-        inject = inject || [];
-        for (var i = 0; i < inject.length; ++i) {
-            options[inject[i]] = this.injector.getDep(inject[i]);
+        this.inject = _.union(this.inject || [], inject || []);
+        for (var i = 0; i < this.inject.length; ++i) {
+            options[this.inject[i]] = this.injector.getDep(this.inject[i]);
         }
 
         options.propList = options.propList || [];
-        this.propList = _.union(this.propList, options.propList, inject);
+        this.propList = _.union(this.propList, options.propList, this.inject);
 
         this.template = options.template || this.template;
 

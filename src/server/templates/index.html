@@ -16,6 +16,13 @@
         <h1>Welcome back!</h1>
         <p><a href="#" class="ko-link">View messages</a></p>
         </script>
+
+        <script type="text/template" id="ko-layoutview-tmpl">
+        <div class="ko-listview"></div>
+        <div class="ko-composeview"></div>
+        <p><a href="#" class="ko-link">Go home</a></p>
+        </script>
+
         <script type="text/template" id="ko-listitemview-tmpl">
         <p><%= name %></p>
         <p><%= msg %></p>
@@ -24,7 +31,6 @@
         <script type="text/template" id="ko-composeview-tmpl">
         <textarea class="ko-text"></textarea>
         <input type="submit" class="ko-submit" value="submit" />
-        <p><a href="#" class="ko-link">Go home</a></p>
         </script>
 
         <script src="/static/js/jquery.js"></script>

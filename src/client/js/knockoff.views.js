@@ -27,6 +27,39 @@
     });
     View.extend = Backbone.View.extend;
 
+    var LayoutView = View.extend({
+        propList: ['views', 'wrapperTag'],
+        wrapperTag: 'div',
+        views: {},
+        render: function() {
+            var viewClass = null;
+            if (this.template !== undefined) {
+                for (viewClass in this.views) {
+                    this.$el.find('.' + viewClass).append(this.views[viewClass].render().el);
+                }
+            } else {
+                var childEl;
+                for (viewClass in this.views) {
+                    childEl = $("<" + this.wrapperEl + "/>");
+                    childEl.addClass(viewClass);
+                    childEl.append(this.views[viewClass].render().el);
+                    this.$el.append(childEl);
+                }
+            }
+            return this;
+        },
+        remove: function() {
+            _.each(this.views, function(view, index, list) {
+                view.remove();
+            }, this);
+
+          this.$el.remove();
+          this.stopListening();
+
+          return this;
+        }
+    });
+
     var ListItemView = View.extend({
         tagName: 'li',
         template: _.template($("#ko-listitemview-tmpl").html()),
@@ -80,6 +113,7 @@
 
     knockoff.ui = {
         View: View,
+        LayoutView: LayoutView,
         List: ListView,
         ListItem: ListItemView
     };

@@ -33,16 +33,16 @@
         propList: [],
         template: undefined,
         events: {},
-        addEvents: function(events, name, callback) {
+        addEvents: function(events, name, fn) {
             if (_.isArray(events)) {
                 for (var i = 0; i < events.length; ++i) {
                     this.events[events[i].event] = events[i].name;
-                    this[events[i].name] = events[i].callback;
+                    this[events[i].name] = events[i].fn;
                     _.bind(this, this[events[i].name]);
                 }
             } else {
                 this.events[events] = name;
-                this[name] = callback;
+                this[name] = fn;
                 _.bind(this, this[name]);
             }
             this.delegateEvents();

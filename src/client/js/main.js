@@ -78,7 +78,7 @@ knockoff.module('msgModule', ['msgServices'])
         layoutView.addEvents([{
             event: 'click .ko-link',
             name: 'link',
-            callback: function() {
+            fn: function() {
                 this.router.navigate('', {trigger: true});
                 return false;
             }

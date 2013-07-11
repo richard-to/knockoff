@@ -42,6 +42,8 @@ var MsgComposeView = knockoff.ui.View.extend({
     template: _.template($("#ko-composeview-tmpl").html()),
     initialize: function() {
         _.bindAll(this, 'render', 'submit');
+        this.model = new this.collection.model({name: this.user.get('name')});
+        this.model.save();
     },
     events: {
         'click .ko-submit': 'submit',
@@ -51,12 +53,12 @@ var MsgComposeView = knockoff.ui.View.extend({
         return this;
     },
     submit: function() {
-        var model = new this.collection.model({
-            name: this.user.get('name'),
-            msg: this.$el.find('.ko-text').val()
-        });
-        model.save();
-        this.collection.add(model);
+        this.model.set({msg: this.$el.find('.ko-text').val()});
+        this.model.save();
+        this.collection.add(this.model);
+        this.$el.find('.ko-text').val('');
+        this.model = new this.collection.model({name: this.user.get('name')});
+        this.model.save();
         return false;
     }
 });

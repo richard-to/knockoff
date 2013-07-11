@@ -180,6 +180,7 @@
         this.name = name;
         this.injector = injector;
         this.env = env;
+        this.env.setEl('.ko-view');
         this.isRunning = false;
 
         this.moduleDeps = moduleDeps || [];

@@ -11,6 +11,20 @@ storage = [
 	{'id': 1, 'name': 'Jane Doe', 'msg': 'Woe is me...', 'published': True}
 ]
 
+@app.route('/api/msgs/draft')
+def api_msgs_draft():
+	draft = None
+	for row in storage:
+		if row['published'] == False:
+			draft = row
+			break
+
+	if draft is None:
+		draft = {'name': 'John Doe', 'msg': '', 'published': False}
+		draft['id'] = len(storage)
+		storage.append(draft)
+	return json.dumps(draft)
+
 @app.route('/api/msgs/<int:msg_id>', methods=['PUT'])
 def api_msgs_save(msg_id):
 	data = json.loads(request.data)

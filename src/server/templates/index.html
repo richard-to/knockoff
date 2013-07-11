@@ -10,7 +10,23 @@
         <link href="/static/css/main.css" rel="stylesheet" type="text/css" />
     </head>
     <body class="ko-app">
-        <div class="ko-view"></div>
+        <div class="navbar">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="brand" href="/#">Knock Off</a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav">
+                            <li><a href="/#msg">Messages</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="ko-view"></div>
+        </div>
+
 
         <script type="text/template" id="ko-home-tmpl">
         <h1>Welcome back!</h1>
@@ -18,19 +34,19 @@
         </script>
 
         <script type="text/template" id="ko-layoutview-tmpl">
-        <div class="ko-listview"></div>
-        <div class="ko-composeview"></div>
+        <div class="ko-listview row-fluid"></div>
+        <div class="ko-composeview row-fluid"></div>
         <p><a href="#" class="ko-link">Go home</a></p>
         </script>
 
         <script type="text/template" id="ko-listitemview-tmpl">
-        <p><%= name %></p>
         <p><%= msg %></p>
+        <p><small>- by <%= name %></small></p>
         </script>
 
         <script type="text/template" id="ko-composeview-tmpl">
-        <textarea class="ko-text"></textarea>
-        <input type="submit" class="ko-submit" value="submit" />
+        <textarea class="ko-text input-block-level" rows="5"></textarea>
+        <p><input type="submit" class="ko-submit btn btn-primary" value="submit" /></p>
         </script>
 
         <script src="/static/js/jquery.js"></script>

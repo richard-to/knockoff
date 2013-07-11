@@ -50,6 +50,7 @@
         render: function() {
             var viewClass = null;
             if (this.template !== undefined) {
+                this.$el.html(this.template());
                 for (viewClass in this.views) {
                     this.$el.find('.' + viewClass).append(this.views[viewClass].render().el);
                 }

@@ -63,6 +63,21 @@
     });
     ListView.extend = View.extend;
 
+    knockoff.provider.provider('router', function(controller) {
+        var controllerLoader = controller;
+        var router = new Backbone.Router();
+        var view = null;
+        this.add = function(route, name, controllerName) {
+            router.route(route, name, function() {
+                controllerLoader(controllerName);
+            });
+        };
+
+        this.get = function() {
+            return router;
+        };
+    });
+
     knockoff.ui = {
         View: View,
         List: ListView,

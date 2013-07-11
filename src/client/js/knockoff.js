@@ -336,21 +336,6 @@
 
     var knockoff = new Knockoff();
 
-    knockoff.provider.provider('router', function(controller) {
-        var controllerLoader = controller;
-        var router = new Backbone.Router();
-
-        this.add = function(route, name, controllerName) {
-            router.route(route, name, function() {
-                controllerLoader(controllerName);
-            });
-        };
-
-        this.get = function() {
-            return router;
-        };
-    });
-
     window.knockoff = knockoff;
     if (typeof define === "function" && define.amd) {
         define("knockoff", [], function() { return knockoff; });

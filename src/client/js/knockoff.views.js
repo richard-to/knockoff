@@ -13,17 +13,24 @@
 
     var View = function(options, inject) {
         this.injector = knockoff.injector;
-        this.propList = options.propList || this.propList;
+
+        options = options || {};
+
         inject = inject || [];
         for (var i = 0; i < inject.length; ++i) {
             options[inject[i]] = this.injector.getDep(inject[i]);
         }
-        options = options || {};
+
+        options.propList = options.propList || [];
+        this.propList = _.union(this.propList, options.propList, inject);
+
+        this.template = options.template || this.template;
+
         MixinConfigureProps.apply(this, [options, this.propList]);
         Backbone.View.apply(this, [options]);
     };
     _.extend(View.prototype, Backbone.View.prototype, {
-        propList: []
+        propList: [],
         template: undefined,
         events: {},
         addEvents: function(events, name, callback) {

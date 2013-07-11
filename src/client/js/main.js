@@ -7,12 +7,37 @@ var UserModel = Backbone.Model.extend({
 var MsgModel = Backbone.Model.extend({
     urlRoot: '/api/msgs',
     methods: {
-        'fetchDraft': 'draft'
+        'fetchDraft': 'draft',
+        'rate': 'rate'
     },
     defaults: {
         'name': '',
         'msg': 'No message.',
-        'published': false
+        'published': false,
+        'rating': null,
+        'rating_reason': ''
+    },
+    upvote: function(successFn, errorFn) {
+        return this.rate(1, '', successFn, errorFn);
+    },
+    downvote: function(successFn, errorFn) {
+        return this.rate(0, '', successFn, errorFn);
+    },
+    rate: function(rating, reason, successFn, errorFn) {
+        var model = this;
+        return this.save({rating: rating, rating_reason: reason}, {
+            url: this.urlRoot + "/" + model.id + "/" + this.methods.rate,
+            success: function(model, resp) {
+                if(successFunc){
+                    successFunc(model, resp);
+                }
+            },
+            error: function(model, resp) {
+                if(errorFn){
+                    errorFn(model, resp);
+                }
+            }
+        });
     },
     fetchDraft: function(successFn) {
         var model = this;
@@ -26,6 +51,24 @@ var MsgModel = Backbone.Model.extend({
 var MsgList = Backbone.Collection.extend({
     url: '/api/msgs',
     model: MsgModel
+});
+
+var MsgItemView = knockoff.ui.ListItem.extend({
+    initialize: function() {
+        _.bindAll(this, 'render', 'upvote', 'downvote');
+    },
+    events: {
+        'click .ko-upvote': 'upvote',
+        'click .ko-downvote': 'downvote'
+    },
+    upvote: function() {
+        this.model.upvote();
+        this.$el.find('.ko-rating').fadeOut();
+    },
+    downvote: function() {
+        this.model.downvote();
+        this.$el.find('.ko-rating').fadeOut();
+    }
 });
 
 var HomeView = knockoff.ui.View.extend({
@@ -52,7 +95,7 @@ var MsgComposeView = knockoff.ui.View.extend({
     propList: ['autosave', 'autosaveInterval'],
     tagName: 'div',
     template: _.template($("#ko-composeview-tmpl").html()),
-    autosave: true,
+    autosave: false,
     autosaveInterval: 10000,
     initialize: function() {
         _.bindAll(this, 'render', 'submit', 'autosaveMsg', 'onFetchDraft');
@@ -98,7 +141,7 @@ knockoff.module('msgServices')
     .value('LayoutView', knockoff.ui.LayoutView)
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
-    .value('ListView', knockoff.ui.List)
+    .value('ListView', knockoff.ui.List.extend({itemView: MsgItemView}))
     .value('MsgComposeView', MsgComposeView);
 
 knockoff.module('msgModule', ['msgServices'])

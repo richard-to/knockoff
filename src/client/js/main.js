@@ -14,10 +14,11 @@ var MsgModel = Backbone.Model.extend({
         'msg': 'No message.',
         'published': false
     },
-    fetchDraft: function(successFn, errorFn) {
+    fetchDraft: function(successFn) {
         var model = this;
         return this.fetch({
-            url: this.urlRoot + "/" + this.methods.fetchDraft
+            url: this.urlRoot + "/" + this.methods.fetchDraft,
+            success: successFn
         });
     }
 });
@@ -48,12 +49,16 @@ var HomeView = knockoff.ui.View.extend({
 });
 
 var MsgComposeView = knockoff.ui.View.extend({
+    propList: ['autosave'],
     tagName: 'div',
     template: _.template($("#ko-composeview-tmpl").html()),
+    autosave: true,
+    autosaveInterval: 10000,
     initialize: function() {
-        _.bindAll(this, 'render', 'submit');
-        this.model = new this.collection.model({name: this.user.get('name')});
-        this.model.fetchDraft();
+        _.bindAll(this, 'render', 'submit', 'autosaveMsg', 'onFetchDraft');
+        this.model = new this.collection.model();
+        this.model.fetchDraft(this.onFetchDraft);
+        this.autosaveMsg();
     },
     events: {
         'click .ko-submit': 'submit',
@@ -61,6 +66,9 @@ var MsgComposeView = knockoff.ui.View.extend({
     render: function() {
         this.$el.html(this.template());
         return this;
+    },
+    onFetchDraft: function(model) {
+        this.$el.find('.ko-text').val(model.get('msg'));
     },
     submit: function() {
         this.model.set({
@@ -73,6 +81,13 @@ var MsgComposeView = knockoff.ui.View.extend({
         this.model = new this.collection.model({name: this.user.get('name')});
         this.model.fetchDraft();
         return false;
+    },
+    autosaveMsg: function() {
+        var self = this;
+        setTimeout(function() {
+            self.model.save({'msg': self.$el.find('.ko-text').val()});
+            self.autosaveMsg();
+        }, this.autosaveInterval);
     }
 });
 

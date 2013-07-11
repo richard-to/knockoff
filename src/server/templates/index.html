@@ -40,8 +40,14 @@
         </script>
 
         <script type="text/template" id="ko-listitemview-tmpl">
+        <p><small>Posted by: <%= name %></small></p>
         <p><%= msg %></p>
-        <p><small>- by <%= name %></small></p>
+        <% if (rating === null) { %>
+        <p class="ko-rating">
+            <button class="btn btn-success ko-upvote">Thumbs up!</button>
+            <button class="btn btn-danger ko-downvote">Thumbs down!</button>
+        </p>
+        <% } %>
         </script>
 
         <script type="text/template" id="ko-composeview-tmpl">

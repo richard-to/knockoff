@@ -84,10 +84,12 @@ var MsgComposeView = knockoff.ui.View.extend({
     },
     autosaveMsg: function() {
         var self = this;
-        setTimeout(function() {
-            self.model.save({'msg': self.$el.find('.ko-text').val()});
-            self.autosaveMsg();
-        }, this.autosaveInterval);
+        if (this.autosave) {
+            setTimeout(function() {
+                self.model.save({'msg': self.$el.find('.ko-text').val()});
+                self.autosaveMsg();
+            }, this.autosaveInterval);
+        }
     }
 });
 
@@ -97,7 +99,7 @@ knockoff.module('msgServices')
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
     .value('ListView', knockoff.ui.List)
-    .value('MsgComposeView', MsgComposeView);
+    .value('MsgComposeView', MsgComposeView.extend({'autosave': false}));
 
 knockoff.module('msgModule', ['msgServices'])
     .config(function(routerProvider) {

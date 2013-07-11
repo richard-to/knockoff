@@ -11,8 +11,14 @@ storage = [
 	{'id': 1, 'name': 'Jane Doe', 'msg': 'Woe is me...'}
 ]
 
+@app.route('/api/msgs/<int:msg_id>', methods=['PUT'])
+def api_msgs_save(msg_id):
+	data = json.loads(request.data)
+	storage[msg_id] = data
+	return json.dumps(data)
+
 @app.route('/api/msgs', methods=['POST'])
-def api_msgs_save():
+def api_msgs_new():
 	data = json.loads(request.data)
 	data['id'] = len(storage)
 	storage.append(data)

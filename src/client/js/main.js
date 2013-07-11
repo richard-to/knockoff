@@ -6,9 +6,19 @@ var UserModel = Backbone.Model.extend({
 
 var MsgModel = Backbone.Model.extend({
     urlRoot: '/api/msgs',
+    methods: {
+        'fetchDraft': 'draft'
+    },
     defaults: {
         'name': '',
-        'msg': 'No message.'
+        'msg': 'No message.',
+        'published': false
+    },
+    fetchDraft: function(successFn, errorFn) {
+        var model = this;
+        return this.fetch({
+            url: this.urlRoot + "/" + this.methods.fetchDraft
+        });
     }
 });
 
@@ -43,7 +53,7 @@ var MsgComposeView = knockoff.ui.View.extend({
     initialize: function() {
         _.bindAll(this, 'render', 'submit');
         this.model = new this.collection.model({name: this.user.get('name')});
-        this.model.save();
+        this.model.fetchDraft();
     },
     events: {
         'click .ko-submit': 'submit',
@@ -53,12 +63,15 @@ var MsgComposeView = knockoff.ui.View.extend({
         return this;
     },
     submit: function() {
-        this.model.set({msg: this.$el.find('.ko-text').val()});
+        this.model.set({
+            msg: this.$el.find('.ko-text').val(),
+            published: true
+        });
         this.model.save();
         this.collection.add(this.model);
         this.$el.find('.ko-text').val('');
         this.model = new this.collection.model({name: this.user.get('name')});
-        this.model.save();
+        this.model.fetchDraft();
         return false;
     }
 });
@@ -73,7 +86,7 @@ knockoff.module('msgServices')
 
 knockoff.module('msgModule', ['msgServices'])
     .config(function(routerProvider) {
-        routerProvider.add('help', 'help', 'msgController');
+        routerProvider.add('msg', 'msg', 'msgController');
     })
     .controller('msgController', function(env, MsgList, LayoutView, ListView, MsgComposeView) {
         var msgList = new MsgList();

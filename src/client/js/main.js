@@ -1,3 +1,9 @@
+var UserModel = Backbone.Model.extend({
+    defaults: {
+        'name': ''
+    }
+});
+
 var MsgModel = Backbone.Model.extend({
     urlRoot: '/api/msgs',
     defaults: {
@@ -46,6 +52,7 @@ var MsgComposeView = knockoff.ui.View.extend({
     },
     submit: function() {
         var model = new this.collection.model({
+            name: this.user.get('name'),
             msg: this.$el.find('.ko-text').val()
         });
         model.save();
@@ -55,6 +62,7 @@ var MsgComposeView = knockoff.ui.View.extend({
 });
 
 knockoff.module('msgServices')
+    .value('user', new UserModel({'name': 'John Doe'}))
     .value('LayoutView', knockoff.ui.LayoutView)
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
@@ -70,7 +78,7 @@ knockoff.module('msgModule', ['msgServices'])
         msgList.fetch();
 
         var listView = new ListView({collection: msgList});
-        var composeView = new MsgComposeView({collection: msgList});
+        var composeView = new MsgComposeView({collection: msgList}, ['user']);
         var layoutView = new LayoutView({
             template: _.template($("#ko-layoutview-tmpl").html()),
             views: {

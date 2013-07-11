@@ -40,9 +40,9 @@
         </script>
 
         <script type="text/template" id="ko-listitemview-tmpl">
-        <p><small>Posted by: <%= name %></small></p>
-        <p><%= msg %></p>
-        <% if (rating === null) { %>
+        <p><small>Posted by: <%= model.name %></small></p>
+        <p><%= model.msg %></p>
+        <% if (model.rating === null && !model.isOwner) { %>
         <p class="ko-rating">
             <button class="btn btn-success ko-upvote">Thumbs up!</button>
             <button class="btn btn-danger ko-downvote">Thumbs down!</button>

@@ -43,7 +43,7 @@ var HomeView = knockoff.ui.View.extend({
         return this;
     },
     link: function() {
-        this.router.navigate("help", {trigger: true});
+        this.router.navigate("msg", {trigger: true});
         return false;
     }
 });

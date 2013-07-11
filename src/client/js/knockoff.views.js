@@ -24,6 +24,22 @@
     };
     _.extend(View.prototype, Backbone.View.prototype, {
         propList: []
+        template: undefined,
+        events: {},
+        addEvents: function(events, name, callback) {
+            if (_.isArray(events)) {
+                for (var i = 0; i < events.length; ++i) {
+                    this.events[events[i].event] = events[i].name;
+                    this[events[i].name] = events[i].callback;
+                    _.bind(this, this[events[i].name]);
+                }
+            } else {
+                this.events[events] = name;
+                this[name] = callback;
+                _.bind(this, this[name]);
+            }
+            this.delegateEvents();
+        }
     });
     View.extend = Backbone.View.extend;
 

@@ -135,7 +135,7 @@
                 }
 
                 var fn = meta.fn;
-                injector.instantiate(fn, params);
+                return injector.instantiate(fn, params);
             };
         };
     };

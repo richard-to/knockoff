@@ -1,7 +1,19 @@
+import json
 import os
+
 from flask import Flask, render_template
 
+
 app = Flask(__name__)
+
+storage = [
+	{'name': 'John Doe', 'msg': 'Hello world!'},
+	{'name': 'Jane Doe', 'msg': 'Woe is me...'}
+]
+
+@app.route('/api/msgs')
+def api_msgs():
+	return json.dumps(storage)
 
 @app.route('/')
 def index():

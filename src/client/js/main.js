@@ -30,15 +30,13 @@ var HomeView = knockoff.ui.View.extend({
 });
 
 var MsgComposeView = knockoff.ui.View.extend({
-    propList: ['router'],
     tagName: 'div',
     template: _.template($("#ko-composeview-tmpl").html()),
     initialize: function() {
-        _.bindAll(this, 'render', 'submit', 'link');
+        _.bindAll(this, 'render', 'submit');
     },
     events: {
         'click .ko-submit': 'submit',
-        'click .ko-link': 'link'
     },
     render: function() {
         this.$el.html(this.template());
@@ -48,10 +46,6 @@ var MsgComposeView = knockoff.ui.View.extend({
         this.collection.add(new this.collection.model({
             msg: this.$el.find('.ko-text').val()
         }));
-        return false;
-    },
-    link: function() {
-        this.router.navigate('', {trigger: true});
         return false;
     }
 });
@@ -73,13 +67,22 @@ knockoff.module('msgModule', ['msgServices'])
         env.msgList = msgList;
 
         var listView = new ListView({collection: env.msgList});
-        var composeView = new MsgComposeView({collection: env.msgList}, ['router']);
+        var composeView = new MsgComposeView({collection: env.msgList});
         var layoutView = new LayoutView({
+            template: _.template($("#ko-layoutview-tmpl").html()),
             views: {
                 "ko-listview": listView,
                 "ko-composeview": composeView
             }
-        });
+        }, ['router']);
+        layoutView.addEvents([{
+            event: 'click .ko-link',
+            name: 'link',
+            callback: function() {
+                this.router.navigate('', {trigger: true});
+                return false;
+            }
+        }]);
 
         env.$el.html(layoutView.render().el);
     });

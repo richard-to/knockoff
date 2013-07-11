@@ -49,7 +49,7 @@ var HomeView = knockoff.ui.View.extend({
 });
 
 var MsgComposeView = knockoff.ui.View.extend({
-    propList: ['autosave'],
+    propList: ['autosave', 'autosaveInterval'],
     tagName: 'div',
     template: _.template($("#ko-composeview-tmpl").html()),
     autosave: true,
@@ -99,7 +99,7 @@ knockoff.module('msgServices')
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
     .value('ListView', knockoff.ui.List)
-    .value('MsgComposeView', MsgComposeView.extend({'autosave': false}));
+    .value('MsgComposeView', MsgComposeView);
 
 knockoff.module('msgModule', ['msgServices'])
     .config(function(routerProvider) {

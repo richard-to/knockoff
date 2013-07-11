@@ -15,7 +15,8 @@ var MsgModel = Backbone.Model.extend({
         'msg': 'No message.',
         'published': false,
         'rating': null,
-        'rating_reason': ''
+        'rating_reason': '',
+        'isOwner': false
     },
     upvote: function(successFn, errorFn) {
         return this.rate(1, '', successFn, errorFn);
@@ -54,12 +55,21 @@ var MsgList = Backbone.Collection.extend({
 });
 
 var MsgItemView = knockoff.ui.ListItem.extend({
+    inject: ['user'],
     initialize: function() {
         _.bindAll(this, 'render', 'upvote', 'downvote');
     },
     events: {
         'click .ko-upvote': 'upvote',
         'click .ko-downvote': 'downvote'
+    },
+    render: function() {
+        var data = {
+            user: this.user.attributes,
+            model: this.model.attributes
+        };
+        this.$el.html(this.template(data));
+        return this;
     },
     upvote: function() {
         this.model.upvote();

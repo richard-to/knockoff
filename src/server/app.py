@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 
@@ -13,6 +14,17 @@ storageMsg = [
 	{'id': 1, 'name': 'Jane Doe', 'msg': 'Woe is me...', 'published': True, 'rating': None, 'rating_reason': ''},
 ]
 
+def save_msg(data):
+	msg = copy.deepcopy(data)
+	del msg['isOwner']
+	storageMsg.append(msg)
+	return msg
+
+def msg_to_view_model(msg, user):
+	vm = copy.deepcopy(msg)
+	vm['isOwner'] = (vm['name'] == user['name'])
+	return vm
+
 @app.route('/api/msgs/draft')
 def api_msgs_draft():
 	draft = None
@@ -25,34 +37,34 @@ def api_msgs_draft():
 		draft = {'name': currentUser['name'], 'msg': '', 'published': False, 'rating': None, 'rating_reason': ''}
 		draft['id'] = len(storageMsg)
 		storageMsg.append(draft)
-	return json.dumps(draft)
+	return json.dumps(msg_to_view_model(draft, currentUser))
 
 @app.route('/api/msgs/<int:msg_id>/rate', methods=['PUT'])
 def api_msgs_rate(msg_id):
 	data = json.loads(request.data)
 	storageMsg[msg_id]['rating'] = data['rating']
 	storageMsg[msg_id]['rating_reason'] = data['rating_reason']
-	return json.dumps(storageMsg[msg_id])
+	return json.dumps(msg_to_view_model(storageMsg[msg_id], currentUser))
 
 @app.route('/api/msgs/<int:msg_id>', methods=['PUT'])
 def api_msgs_save(msg_id):
 	data = json.loads(request.data)
-	storageMsg[msg_id] = data
-	return json.dumps(data)
+	msg = save_msg(data)
+	return json.dumps(msg_to_view_model(msg, currentUser))
 
 @app.route('/api/msgs', methods=['POST'])
 def api_msgs_new():
 	data = json.loads(request.data)
 	data['id'] = len(storageMsg)
-	storageMsg.append(data)
-	return json.dumps(data)
+	msg = save_msg(data)
+	return json.dumps(msg_to_view_model(msg, currentUser))
 
 @app.route('/api/msgs')
 def api_msgs():
 	data = []
 	for row in storageMsg:
 		if row['published']:
-			data.append(row)
+			data.append(msg_to_view_model(row, currentUser))
 	return json.dumps(data)
 
 @app.route('/')
@@ -61,7 +73,7 @@ def index():
 
 def main():
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
 
 
 if __name__ == '__main__':

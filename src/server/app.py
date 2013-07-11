@@ -7,8 +7,8 @@ from flask import Flask, render_template, request
 app = Flask(__name__)
 
 storage = [
-	{'id': 0, 'name': 'John Doe', 'msg': 'Hello world!'},
-	{'id': 1, 'name': 'Jane Doe', 'msg': 'Woe is me...'}
+	{'id': 0, 'name': 'John Doe', 'msg': 'Hello world!', 'published': True},
+	{'id': 1, 'name': 'Jane Doe', 'msg': 'Woe is me...', 'published': True}
 ]
 
 @app.route('/api/msgs/<int:msg_id>', methods=['PUT'])
@@ -26,7 +26,11 @@ def api_msgs_new():
 
 @app.route('/api/msgs')
 def api_msgs():
-	return json.dumps(storage)
+	data = []
+	for row in storage:
+		if row['published']:
+			data.append(row)
+	return json.dumps(data)
 
 @app.route('/')
 def index():

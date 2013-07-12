@@ -4,7 +4,6 @@ import os
 
 from flask import Flask, render_template, request, session
 
-
 SECRET_KEY = 'Secret Key'
 DEBUG = True
 

@@ -21,12 +21,12 @@ app.config.from_object(__name__)
 
 storageUsers = {
 	'John Doe': {
-		'id': 1,
+		'id': 0,
 		'name': 'John Doe',
 		'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon&s=40'
 	},
 	'Jane Doe': {
-		'id': 2,
+		'id': 1,
 		'name': 'Jane Doe',
 		'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon&s=40'
 	}

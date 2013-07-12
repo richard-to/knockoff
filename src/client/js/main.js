@@ -57,7 +57,13 @@ var MsgModel = Backbone.Model.extend({
         'publishDate': '',
         'rating': null,
         'owner': false,
-        'collapsed': false
+        'collapsed': false,
+        'excerpt': '',
+    },
+    initialize: function() {
+        this.on('change:msg', function(model, msg) {
+            model.set('excerpt', msg.substring(0, 60) + "...");
+        });
     },
     toggleCollapse: function() {
         if (this.get('collapsed') === true) {

@@ -4,11 +4,18 @@ import os
 
 from flask import Flask, render_template, request, session
 
+# Application config
+# ==================
+
 SECRET_KEY = 'Secret Key'
 DEBUG = True
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+
+
+# Fake data store
+# ===============
 
 storageUsers = {
 	'John Doe': {
@@ -42,6 +49,10 @@ storageMsg = [
 	},
 ]
 
+
+# Helper methods
+# ==============
+
 def save_msg(data):
 	msg = copy.deepcopy(data)
 	del msg['isOwner']
@@ -58,6 +69,14 @@ def user_to_view_model(user):
 	vm['isLoggedIn'] = True
 	return vm
 
+
+# Api endpoints
+# =============
+
+
+# Login api
+# ---------
+
 @app.route('/api/users/login', methods=['POST'])
 def api_users_login():
 	data = json.loads(request.data)
@@ -67,6 +86,10 @@ def api_users_login():
 		return json.dumps(user_to_view_model(session['user']))
 	else:
 		return json.dumps(data)
+
+
+# Msg api
+# -------
 
 @app.route('/api/msgs/draft')
 def api_msgs_draft():
@@ -114,6 +137,10 @@ def api_msgs():
 		if row['published']:
 			data.append(msg_to_view_model(row, session['user']))
 	return json.dumps(data)
+
+
+# Main page
+# =========
 
 @app.route('/')
 def index():

@@ -159,7 +159,6 @@
             this.$el.append(view.render().el);
         }
     });
-    ListView.extend = View.extend;
 
     knockoff.provider.provider('router', function(controller) {
         var controllerLoader = controller;

@@ -32,6 +32,16 @@ storageUsers = {
 	}
 }
 
+storageGoals = [
+	{
+		'id': 0,
+		'name': 'John Doe',
+		'goal': '',
+		'tasks': [],
+		'approved': False
+	}
+]
+
 storageMsg = [
 	{
 		'id': 0,
@@ -72,6 +82,11 @@ def msg_to_view_model(msg, user):
 def user_to_view_model(user):
 	vm = copy.deepcopy(user)
 	vm['isLoggedIn'] = True
+	return vm
+
+def goal_to_view_model(goal, user):
+	vm = copy.deepcopy(goal)
+	vm['owner'] = (vm['name'] == user['name'])
 	return vm
 
 

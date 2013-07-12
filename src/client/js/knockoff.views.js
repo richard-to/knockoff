@@ -49,20 +49,24 @@
     View.extend = Backbone.View.extend;
 
     var MultiControllerView = View.extend({
-        propList: ['env', 'controllers', 'wrapperTag'],
+        propList: ['env', 'controllers', 'wrapperTag', 'ctrlPrefix'],
         inject: ['controller'],
+        ctrlPrefix: 'ko-controller-',
         wrapperTag: 'div',
         controllers: {},
         render: function() {
             var viewClass = null;
+            var childEnv = null;
+            var childEl = null;
             if (this.template !== undefined) {
                 this.$el.html(this.template());
-                for (viewClass in this.views) {
-                    this.$el.find('.' + viewClass).append(this.views[viewClass].render().el);
+                for (viewClass in this.controllers) {
+                    childEl = this.$el.find('.' + viewClass).first();
+                    childEnv = this.env.addChild();
+                    childEnv.setEl(childEl);
+                    this.controller(this.controllers[viewClass], {env: childEnv});
                 }
             } else {
-                var childEnv = null;
-                var childEl = null;
                 for (viewClass in this.controllers) {
                     childEl = $("<" + this.wrapperTag + "/>");
                     childEl.addClass(viewClass);
@@ -75,9 +79,6 @@
             return this;
         },
         remove: function() {
-            _.each(this.views, function(view, index, list) {
-                view.remove();
-            }, this);
 
             this.$el.remove();
             this.stopListening();

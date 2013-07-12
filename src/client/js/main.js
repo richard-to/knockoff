@@ -318,8 +318,9 @@ knockoff.module('mainModule', ['msgModule', 'goalModule'])
     .controller('mainController', function(env, MultiControllerView) {
         var view = new MultiControllerView({
             env: env,
+            template: _.template($("#ko-main-tmpl").html()),
             controllers: {
-                'ko-view-goals': 'goalController',
+                'ko-view-goal': 'goalController',
                 'ko-view-msg': 'msgController'
             }
         });

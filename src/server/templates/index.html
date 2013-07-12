@@ -60,18 +60,18 @@
         <script type="text/template" id="ko-listitemview-tmpl">
         <div class="row-fluid ko-msg-header">
             <div class="span1">
-                <p><img src="<%= model.avatar %>" width="40" height="40" class="img-polaroid" /></p>
+                <p><img src="<%= avatar %>" width="40" height="40" class="img-polaroid" /></p>
             </div>
             <div class="span10">
-                <p><strong><%= model.name %></strong></p>
-                <p class="ko-msg-excerpt"><em><%= model.excerpt %></em></p>
+                <p><strong><%= name %></strong></p>
+                <p class="ko-msg-excerpt"><em><%= excerpt %></em></p>
             </div>
             <div class="span1">
-                <p><strong><%= model.publishDate %></strong></p>
+                <p><strong><%= publishDate %></strong></p>
             </div>
         </div>
         <div class="row-fluid ko-msg-body">
-            <% if (!model.owner || model.rating == 1) { %>
+            <% if (!owner || rating == 1) { %>
             <div class="span1 ko-rating"</div>
                 <p>
                     <button class="btn ko-upvote"><i class="icon-thumbs-up"></i></button>
@@ -81,11 +81,11 @@
                 </p>
             </div>
             <div class="span11">
-                <p><%= model.msg %></p>
+                <p><%= msg %></p>
             </div>
             <% } else { %>
             <div class="span11 offset1">
-                <p><%= model.msg %></p>
+                <p><%= msg %></p>
             </div>
             <% } %>
         </div>

@@ -119,18 +119,13 @@ var GoalView = knockoff.ui.View.extend({
 
 
 var MsgItemView = knockoff.ui.ListItem.extend({
-    inject: ['user'],
     events: {
         'click .ko-upvote': 'upvote',
         'click .ko-downvote': 'downvote',
         'click .ko-msg-header': 'collapse'
     },
     render: function() {
-        var data = {
-            user: this.user.attributes,
-            model: this.model.attributes
-        };
-        this.$el.html(this.template(data));
+        this.$el.html(this.template(this.model.attributes));
 
         this.collapseRender();
 

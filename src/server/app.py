@@ -42,7 +42,7 @@ storageMsg = [
 	{
 		'id': 1,
 		'name': 'Jane Doe',
-		'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon',
+		'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon&s=40',
 		'msg': 'Woe is me...',
 		'published': True,
 		'rating': None

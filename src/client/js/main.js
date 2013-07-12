@@ -210,51 +210,55 @@ var MsgComposeView = knockoff.ui.View.extend({
     }
 });
 
+knockoff.module('appServices')
+    .value('user', new UserModel());
+
 knockoff.module('msgServices')
-    .value('user', new UserModel({'name': 'John Doe'}))
     .value('LayoutView', knockoff.ui.LayoutView)
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
     .value('ListView', knockoff.ui.List.extend({itemView: MsgItemView}))
     .value('MsgComposeView', MsgComposeView);
 
-knockoff.module('msgModule', ['msgServices'])
+knockoff.module('msgModule', ['appServices', 'msgServices'])
     .config(function(routerProvider) {
         routerProvider.add('msg', 'msg', 'msgController');
     })
-    .controller('msgController', function(env, MsgList, LayoutView, ListView, MsgComposeView) {
-        var msgList = new MsgList();
-        msgList.fetch();
+    .controller('msgController', function(env, user, router, MsgList, LayoutView, ListView, MsgComposeView) {
+        if (user.isLoggedIn()) {
+            var msgList = new MsgList();
+            msgList.fetch();
 
-        var listView = new ListView({collection: msgList});
-        var composeView = new MsgComposeView({collection: msgList}, ['user']);
-        var layoutView = new LayoutView({
-            template: _.template($("#ko-layoutview-tmpl").html()),
-            views: {
-                "ko-listview": listView,
-                "ko-composeview": composeView
-            }
-        }, ['router']);
-        layoutView.addEvents([{
-            event: 'click .ko-link',
-            name: 'link',
-            fn: function() {
-                this.router.navigate('', {trigger: true});
-                return false;
-            }
-        }]);
+            var listView = new ListView({collection: msgList});
+            var composeView = new MsgComposeView({collection: msgList}, ['user']);
+            var layoutView = new LayoutView({
+                template: _.template($("#ko-layoutview-tmpl").html()),
+                views: {
+                    "ko-listview": listView,
+                    "ko-composeview": composeView
+                }
+            });
 
-        env.$el.html(layoutView.render().el);
+            env.$el.html(layoutView.render().el);
+        } else {
+            router.navigate('', {trigger: true});
+        }
     });
 
-knockoff.module('homeModule')
+knockoff.module('homeModule', ['appServices'])
     .value('HomeView', HomeView)
+    .value('LoginView', LoginView)
     .config(function(routerProvider) {
         routerProvider.add('', 'home', 'homeController');
     })
-    .controller('homeController', function(env, HomeView) {
-        var homeView = new HomeView({}, ['router']);
-        env.$el.html(homeView.render().el);
+    .controller('homeController', function(env, user, LoginView, HomeView) {
+        if (user.isLoggedIn()) {
+            var homeView = new HomeView({});
+            env.$el.html(homeView.render().el);
+        } else {
+            var loginView = new LoginView({model: user});
+            env.$el.html(loginView.render().el);
+        }
     });
 
 Backbone.history.start();

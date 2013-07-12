@@ -24,8 +24,22 @@ storageUsers = {
 }
 
 storageMsg = [
-	{'id': 0, 'name': 'John Doe', 'msg': 'Hello world!', 'published': True, 'rating': None, 'rating_reason': ''},
-	{'id': 1, 'name': 'Jane Doe', 'msg': 'Woe is me...', 'published': True, 'rating': None, 'rating_reason': ''},
+	{
+		'id': 0,
+		'name': 'John Doe',
+		'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon',
+		'msg': 'Hello world!',
+		'published': True,
+		'rating': None,
+	},
+	{
+		'id': 1,
+		'name': 'Jane Doe',
+		'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon',
+		'msg': 'Woe is me...',
+		'published': True,
+		'rating': None
+	},
 ]
 
 def save_msg(data):
@@ -63,7 +77,6 @@ def api_msgs_draft():
 def api_msgs_rate(msg_id):
 	data = json.loads(request.data)
 	storageMsg[msg_id]['rating'] = data['rating']
-	storageMsg[msg_id]['rating_reason'] = data['rating_reason']
 	return json.dumps(msg_to_view_model(storageMsg[msg_id], session['user']))
 
 @app.route('/api/msgs/<int:msg_id>', methods=['PUT'])

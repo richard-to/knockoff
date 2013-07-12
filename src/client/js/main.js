@@ -145,6 +145,26 @@ var HomeView = knockoff.ui.View.extend({
     }
 });
 
+var LoginView = knockoff.ui.View.extend({
+    inject: ['router'],
+    tagName: 'div',
+    template: _.template($("#ko-loginview-tmpl").html()),
+    events: {
+        'click .ko-submit': 'submit'
+    },
+    render: function() {
+        this.$el.html(this.template());
+        return this;
+    },
+    submit: function() {
+        var router = this.router;
+        this.model.set('name', this.$el.find('.ko-username-input').val());
+        this.model.login(function(model) {
+            router.navigate('msg', {trigger: true});
+        });
+    }
+});
+
 var MsgComposeView = knockoff.ui.View.extend({
     propList: ['autosave', 'autosaveInterval'],
     tagName: 'div',

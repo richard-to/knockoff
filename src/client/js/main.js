@@ -110,9 +110,6 @@ var MsgList = Backbone.Collection.extend({
 
 var MsgItemView = knockoff.ui.ListItem.extend({
     inject: ['user'],
-    initialize: function() {
-        _.bindAll(this, 'render', 'upvote', 'downvote');
-    },
     events: {
         'click .ko-upvote': 'upvote',
         'click .ko-downvote': 'downvote',

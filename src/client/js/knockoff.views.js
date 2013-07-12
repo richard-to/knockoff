@@ -79,10 +79,10 @@
                 view.remove();
             }, this);
 
-          this.$el.remove();
-          this.stopListening();
+            this.$el.remove();
+            this.stopListening();
 
-          return this;
+            return this;
         }
     });
 
@@ -112,11 +112,9 @@
             _.each(this.views, function(view, index, list) {
                 view.remove();
             }, this);
-
-          this.$el.remove();
-          this.stopListening();
-
-          return this;
+            this.$el.remove();
+            this.stopListening();
+            return this;
         }
     });
 

@@ -69,8 +69,13 @@ storageMsg = [
 
 def save_msg(data):
 	msg = copy.deepcopy(data)
+	msg['publishDate'] = date.today().strftime("%d/%m/%y")
 	del msg['owner']
-	storageMsg.append(msg)
+	if 'id' not in msg:
+		msg['id'] = len(storageMsg)
+		storageMsg.append(msg)
+	else:
+		storageMsg[data['id']] = msg
 	return msg
 
 def msg_to_view_model(msg, user):
@@ -154,8 +159,6 @@ def api_msgs_save(msg_id):
 @app.route('/api/msgs', methods=['POST'])
 def api_msgs_new():
 	data = json.loads(request.data)
-	data['id'] = len(storageMsg)
-	data['publishedDate'] = date.today().strftime("%d/%m/%y")
 	msg = save_msg(data)
 	return json.dumps(msg_to_view_model(msg, session['user']))
 

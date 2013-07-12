@@ -273,13 +273,11 @@ knockoff.module('goalServices')
     .value('GoalView', GoalView);
 
 knockoff.module('goalModule', ['appServices', 'goalServices'])
-    .controller('goalController', function(env, user, router, GoalModel, GoalView) {
-        if (user.isLoggedIn()) {
-            var goal = new GoalModel({id: 0});
-            goal.fetch();
-            var goalView = new GoalView({model: goal});
-            env.$el.html(goalView.render().el);
-        }
+    .controller('goalController', function(env, GoalModel, GoalView) {
+        var goal = new GoalModel({id: 0});
+        goal.fetch();
+        var goalView = new GoalView({model: goal});
+        env.$el.html(goalView.render().el);
     });
 
 knockoff.module('msgServices')
@@ -290,24 +288,20 @@ knockoff.module('msgServices')
     .value('MsgComposeView', MsgComposeView);
 
 knockoff.module('msgModule', ['appServices', 'msgServices'])
-    .controller('msgController', function(env, user, router, MsgList, LayoutView, ListView, MsgComposeView) {
-        if (user.isLoggedIn()) {
-            var msgList = new MsgList();
-            msgList.fetch();
+    .controller('msgController', function(env, MsgList, LayoutView, ListView, MsgComposeView) {
+        var msgList = new MsgList();
+        msgList.fetch();
 
-            var listView = new ListView({collection: msgList});
-            var composeView = new MsgComposeView({collection: msgList}, ['user']);
-            var layoutView = new LayoutView({
-                template: _.template($("#ko-layoutview-tmpl").html()),
-                views: {
-                    "ko-listview": listView,
-                    "ko-composeview": composeView
-                }
-            });
-            env.$el.html(layoutView.render().el);
-        } else {
-            router.navigate('', {trigger: true});
-        }
+        var listView = new ListView({collection: msgList});
+        var composeView = new MsgComposeView({collection: msgList}, ['user']);
+        var layoutView = new LayoutView({
+            template: _.template($("#ko-layoutview-tmpl").html()),
+            views: {
+                "ko-listview": listView,
+                "ko-composeview": composeView
+            }
+        });
+        env.$el.html(layoutView.render().el);
     });
 
 knockoff.module('mainModule', ['msgModule', 'goalModule'])
@@ -315,12 +309,16 @@ knockoff.module('mainModule', ['msgModule', 'goalModule'])
     .config(function(routerProvider) {
         routerProvider.add('msg', 'msg', 'mainController');
     })
-    .controller('mainController', function(env, MultiControllerView) {
-        var view = new MultiControllerView({
-            env: env,
-            template: _.template($("#ko-main-tmpl").html())
-        });
-        env.$el.html(view.render().el);
+    .controller('mainController', function(env, user, router, MultiControllerView) {
+        if (user.isLoggedIn()) {
+            var view = new MultiControllerView({
+                env: env,
+                template: _.template($("#ko-main-tmpl").html())
+            });
+            env.$el.html(view.render().el);
+        } else {
+            router.navigate('', {trigger: true});
+        }
     });
 
 knockoff.module('homeModule', ['appServices'])

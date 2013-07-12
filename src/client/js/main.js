@@ -145,7 +145,7 @@ var MsgItemView = knockoff.ui.ListItem.extend({
         this.model.downvote();
         this.downvoteRender();
     },
-    dowvoteRender: function() {
+    downvoteRender: function() {
         this.$el.find('.ko-rating').addClass('ko-disabled');
         this.$el.find('.ko-downvote').addClass('btn-danger').addClass('disabled');
         this.$el.find('.ko-downvote i').addClass('icon-white');

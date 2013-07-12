@@ -23,3 +23,9 @@
 .ko-listview li.collapsed .ko-msg-excerpt {
 	display: block;
 }
+
+input[type="text"].ko-goal-input {
+	font-size: 1.5em;
+	height:100%;
+	line-height: 1;
+}

@@ -34,7 +34,7 @@ var MsgModel = Backbone.Model.extend({
                 }
             },
             error: function(model, resp) {
-                if(errorFn){
+                if (errorFn) {
                     errorFn(model, resp);
                 }
             }

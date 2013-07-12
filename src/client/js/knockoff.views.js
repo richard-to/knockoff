@@ -49,34 +49,43 @@
     View.extend = Backbone.View.extend;
 
     var MultiControllerView = View.extend({
-        propList: ['env', 'controllers', 'wrapperTag', 'ctrlPrefix'],
+        propList: ['env', 'controllers', 'wrapperTag', 'ctrlSuffix'],
         inject: ['controller'],
-        ctrlPrefix: 'ko-controller-',
         wrapperTag: 'div',
-        controllers: {},
+        ctrlSuffix: 'Controller',
+        controllers: null,
         render: function() {
             var viewClass = null;
             var childEnv = null;
             var childEl = null;
             if (this.template !== undefined) {
                 this.$el.html(this.template());
-                for (viewClass in this.controllers) {
-                    childEl = this.$el.find('.' + viewClass).first();
-                    childEnv = this.env.addChild();
-                    childEnv.setEl(childEl);
-                    this.controller(this.controllers[viewClass], {env: childEnv});
+                if (this.controllers === null) {
+                    var self = this;
+                    this.$el.find('[data-ctrl]').each(function(index) {
+                        var name =  $(this).attr('data-ctrl') + self.ctrlSuffix;
+                        self.renderController(name, $(this));
+                    });
+                } else {
+                    for (viewClass in this.controllers) {
+                        childEl = this.$el.find('.' + viewClass).first();
+                        this.renderController(this.controllers[viewClass], childEl);
+                    }
                 }
             } else {
                 for (viewClass in this.controllers) {
                     childEl = $("<" + this.wrapperTag + "/>");
                     childEl.addClass(viewClass);
                     this.$el.append(childEl);
-                    childEnv = this.env.addChild();
-                    childEnv.setEl(childEl);
-                    this.controller(this.controllers[viewClass], {env: childEnv});
+                    this.renderController(this.controllers[viewClass], childEl);
                 }
             }
             return this;
+        },
+        renderController: function(name, childEl) {
+            var childEnv = this.env.addChild();
+            childEnv.setEl(childEl);
+            this.controller(name, {env: childEnv});
         },
         remove: function() {
 

@@ -108,6 +108,12 @@ var MsgList = Backbone.Collection.extend({
     model: MsgModel
 });
 
+var GoalView = knockoff.ui.View.extend({
+    tagName: 'div',
+    template: _.template($("#ko-goalview-tmpl").html()),
+    render: function() {
+        this.$el.html(this.template(this.model.attributes));
+
 var MsgItemView = knockoff.ui.ListItem.extend({
     inject: ['user'],
     events: {
@@ -258,24 +264,31 @@ var MsgComposeView = knockoff.ui.View.extend({
 knockoff.module('appServices')
     .value('user', new UserModel());
 
+knockoff.module('goalServices')
+    .value('GoalModel', GoalModel)
+    .value('GoalView', GoalView);
+
+knockoff.module('goalModule', ['appServices', 'msgServices'])
+    .config(function(routerProvider) {
+        routerProvider.add('msg', 'msg', 'goalController');
+    })
+    .controller('goalController', function(env, user, router, GoalModel, GoalView) {
+        var goal = new GoalModel({id: 0});
+        goal.fetch();
+        var goalView = new GoalView({model: goal});
+        env.$el.html(goalView.render().el);
+    });
 knockoff.module('msgServices')
     .value('LayoutView', knockoff.ui.LayoutView)
-    .value('GoalModel', GoalModel)
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
     .value('ListView', knockoff.ui.List.extend({itemView: MsgItemView}))
     .value('MsgComposeView', MsgComposeView);
 
 knockoff.module('msgModule', ['appServices', 'msgServices'])
-    .config(function(routerProvider) {
-        routerProvider.add('msg', 'msg', 'msgController');
-    })
-    .controller('msgController', function(env, user, router, GoalModel, MsgList, LayoutView, ListView, MsgComposeView) {
-        if (user.isLoggedIn()) {
-            var goal = new GoalModel();
-            goal.id = 0;
-            goal.fetch();
 
+    .controller('msgController', function(env, user, router, MsgList, LayoutView, ListView, MsgComposeView) {
+        if (user.isLoggedIn()) {
             var msgList = new MsgList();
             msgList.fetch();
 
@@ -288,7 +301,6 @@ knockoff.module('msgModule', ['appServices', 'msgServices'])
                     "ko-composeview": composeView
                 }
             });
-
             env.$el.html(layoutView.render().el);
         } else {
             router.navigate('', {trigger: true});

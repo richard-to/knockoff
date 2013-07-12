@@ -77,6 +77,7 @@ def msg_to_view_model(msg, user):
 	vm = copy.deepcopy(msg)
 	vm['owner'] = (vm['name'] == user['name'])
 	vm['collapsed'] = vm['published']
+	vm['excerpt'] = ''.join([vm['msg'][:60], '...'])
 	return vm
 
 def user_to_view_model(user):

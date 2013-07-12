@@ -53,6 +53,21 @@ def msg_to_view_model(msg, user):
 	vm['isOwner'] = (vm['name'] == user['name'])
 	return vm
 
+def user_to_view_model(user):
+	vm = copy.deepcopy(user)
+	vm['isLoggedIn'] = True
+	return vm
+
+@app.route('/api/users/login', methods=['POST'])
+def api_users_login():
+	data = json.loads(request.data)
+	if data['name'] in storageUsers:
+		session['user'] = storageUsers[data['name']]
+		session['logged_in'] = True
+		return json.dumps(user_to_view_model(session['user']))
+	else:
+		return json.dumps(data)
+
 @app.route('/api/msgs/draft')
 def api_msgs_draft():
 	draft = None

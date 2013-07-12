@@ -127,7 +127,6 @@ var MsgComposeView = knockoff.ui.View.extend({
     autosave: false,
     autosaveInterval: 10000,
     initialize: function() {
-        _.bindAll(this, 'render', 'submit', 'autosaveMsg', 'onFetchDraft');
         this.model = new this.collection.model();
         this.model.fetchDraft(this.onFetchDraft);
         this.autosaveMsg();

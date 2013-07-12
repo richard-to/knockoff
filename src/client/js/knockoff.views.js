@@ -38,12 +38,10 @@
                 for (var i = 0; i < events.length; ++i) {
                     this.events[events[i].event] = events[i].name;
                     this[events[i].name] = events[i].fn;
-                    _.bind(this, this[events[i].name]);
                 }
             } else {
                 this.events[events] = name;
                 this[name] = fn;
-                _.bind(this, this[name]);
             }
             this.delegateEvents();
         }
@@ -87,9 +85,6 @@
     var ListItemView = View.extend({
         tagName: 'li',
         template: _.template($("#ko-listitemview-tmpl").html()),
-        initialize: function() {
-            _.bindAll(this, 'render');
-        },
         render: function() {
             this.$el.html(this.template(this.model.attributes));
             return this;
@@ -101,7 +96,6 @@
         tagName: 'ul',
         itemView: ListItemView,
         initialize: function() {
-            _.bindAll(this, 'render', 'appendItem');
             this.collection.on('add', this.appendItem);
         },
         render: function() {

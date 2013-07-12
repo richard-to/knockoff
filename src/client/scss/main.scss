@@ -15,3 +15,11 @@
 .ko-listview li.collapsed .ko-msg-body {
 	display: none;
 }
+
+.ko-listview li .ko-msg-excerpt {
+	display: none;
+}
+
+.ko-listview li.collapsed .ko-msg-excerpt {
+	display: block;
+}

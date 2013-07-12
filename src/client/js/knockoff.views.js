@@ -62,7 +62,7 @@
             } else {
                 var childEl;
                 for (viewClass in this.views) {
-                    childEl = $("<" + this.wrapperEl + "/>");
+                    childEl = $("<" + this.wrapperTag + "/>");
                     childEl.addClass(viewClass);
                     childEl.append(this.views[viewClass].render().el);
                     this.$el.append(childEl);

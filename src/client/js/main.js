@@ -69,15 +69,34 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             model: this.model.attributes
         };
         this.$el.html(this.template(data));
+
+        if (this.model.get('rating') === 1) {
+            this.upvote();
+        } else if (this.model.get('rating') === 0) {
+            this.downvote();
+        }
+
         return this;
     },
-    upvote: function() {
+    upvote: function(event) {
+        if (this.$el.find('.ko-rating.ko-disabled').size() > 0) {
+            return;
+        }
         this.model.upvote();
-        this.$el.find('.ko-rating').fadeOut();
+        this.$el.find('.ko-rating').addClass('ko-disabled');
+        this.$el.find('.ko-upvote').addClass('btn-success').addClass('disabled');
+        this.$el.find('.ko-upvote i').addClass('icon-white');
+        this.$el.find('.ko-downvote').parent().hide();
     },
     downvote: function() {
+        if (this.$el.find('.ko-rating.ko-disabled').size() > 0) {
+            return;
+        }
         this.model.downvote();
-        this.$el.find('.ko-rating').fadeOut();
+        this.$el.find('.ko-rating').addClass('ko-disabled');
+        this.$el.find('.ko-downvote').addClass('btn-danger').addClass('disabled');
+        this.$el.find('.ko-downvote i').addClass('icon-white');
+        this.$el.find('.ko-upvote').parent().hide();
     }
 });
 

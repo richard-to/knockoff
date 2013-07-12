@@ -108,6 +108,12 @@ def api_users_login():
 		return json.dumps(data)
 
 
+# Goal api
+# --------
+@app.route('/api/goals/<int:goal_id>', methods=['GET'])
+def api_goal_get(goal_id):
+	return json.dumps(goal_to_view_model(storageGoals[goal_id], session['user']))
+
 # Msg api
 # -------
 

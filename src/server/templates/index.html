@@ -67,7 +67,7 @@
             </div>
         </div>
         <div class="row-fluid ko-msg-body">
-            <% if (!model.owner) { %>
+            <% if (!model.owner || model.rating == 1) { %>
             <div class="span1 ko-rating"</div>
                 <p>
                     <button class="btn ko-upvote"><i class="icon-thumbs-up"></i></button>

@@ -8,10 +8,6 @@ SECRET_KEY = 'Secret Key'
 DEBUG = True
 
 app = Flask(__name__)
-
-currentUser = {
-	'name': 'John Doe'
-}
 app.config.from_object(__name__)
 
 storageUsers = {
@@ -47,42 +43,48 @@ def msg_to_view_model(msg, user):
 def api_msgs_draft():
 	draft = None
 	for row in storageMsg:
-		if row['published'] == False:
+		if session['user']['name'] == row['name'] and row['published'] == False:
 			draft = row
 			break
 
 	if draft is None:
-		draft = {'name': currentUser['name'], 'msg': '', 'published': False, 'rating': None, 'rating_reason': ''}
+		draft = {
+			'name': session['user']['name'],
+			'avatar': session['user']['avatar'],
+			'msg': '',
+			'published': False,
+			'rating': None
+		}
 		draft['id'] = len(storageMsg)
 		storageMsg.append(draft)
-	return json.dumps(msg_to_view_model(draft, currentUser))
+	return json.dumps(msg_to_view_model(draft, session['user']))
 
 @app.route('/api/msgs/<int:msg_id>/rate', methods=['PUT'])
 def api_msgs_rate(msg_id):
 	data = json.loads(request.data)
 	storageMsg[msg_id]['rating'] = data['rating']
 	storageMsg[msg_id]['rating_reason'] = data['rating_reason']
-	return json.dumps(msg_to_view_model(storageMsg[msg_id], currentUser))
+	return json.dumps(msg_to_view_model(storageMsg[msg_id], session['user']))
 
 @app.route('/api/msgs/<int:msg_id>', methods=['PUT'])
 def api_msgs_save(msg_id):
 	data = json.loads(request.data)
 	msg = save_msg(data)
-	return json.dumps(msg_to_view_model(msg, currentUser))
+	return json.dumps(msg_to_view_model(msg, session['user']))
 
 @app.route('/api/msgs', methods=['POST'])
 def api_msgs_new():
 	data = json.loads(request.data)
 	data['id'] = len(storageMsg)
 	msg = save_msg(data)
-	return json.dumps(msg_to_view_model(msg, currentUser))
+	return json.dumps(msg_to_view_model(msg, session['user']))
 
 @app.route('/api/msgs')
 def api_msgs():
 	data = []
 	for row in storageMsg:
 		if row['published']:
-			data.append(msg_to_view_model(row, currentUser))
+			data.append(msg_to_view_model(row, session['user']))
 	return json.dumps(data)
 
 @app.route('/')

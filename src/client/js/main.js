@@ -104,22 +104,26 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             model: this.model.attributes
         };
         this.$el.html(this.template(data));
+
+        this.collapseRender();
+
         if (this.model.get('rating') === 1) {
             this.upvoteRender();
         } else if (this.model.get('rating') === 0) {
             this.downvoteRender();
         }
-
+        return this;
+    },
+    collapse: function() {
+        this.model.toggleCollapse();
+        this.collapseRender();
+    },
+    collapseRender: function() {
         if (this.model.get('collapsed') === true) {
             this.$el.addClass('collapsed');
         } else {
             this.$el.removeClass('collapsed');
         }
-        return this;
-    },
-    collapse: function() {
-        this.model.toggleCollapse();
-        this.render();
     },
     upvote: function() {
         if (this.$el.find('.ko-rating.ko-disabled').size() > 0) {

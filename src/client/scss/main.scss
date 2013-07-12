@@ -11,3 +11,7 @@
 .ko-listview li.collapsed {
 	background: #fafafa;
 }
+
+.ko-listview li.collapsed .ko-msg-body {
+	display: none;
+}

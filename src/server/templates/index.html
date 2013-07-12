@@ -57,7 +57,6 @@
                 <p><strong><%= model.publishDate %></strong></p>
             </div>
         </div>
-        <% if (model.collapsed == false) { %>
         <div class="row-fluid ko-msg-body">
             <% if (!model.owner) { %>
             <div class="span1 ko-rating"</div>
@@ -77,7 +76,6 @@
             </div>
             <% } %>
         </div>
-        <% } %>
         </script>
 
         <script type="text/template" id="ko-composeview-tmpl">

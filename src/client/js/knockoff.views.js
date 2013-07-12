@@ -48,6 +48,44 @@
     });
     View.extend = Backbone.View.extend;
 
+    var MultiControllerView = View.extend({
+        propList: ['env', 'controllers', 'wrapperTag'],
+        inject: ['controller'],
+        wrapperTag: 'div',
+        controllers: {},
+        render: function() {
+            var viewClass = null;
+            if (this.template !== undefined) {
+                this.$el.html(this.template());
+                for (viewClass in this.views) {
+                    this.$el.find('.' + viewClass).append(this.views[viewClass].render().el);
+                }
+            } else {
+                var childEnv = null;
+                var childEl = null;
+                for (viewClass in this.controllers) {
+                    childEl = $("<" + this.wrapperTag + "/>");
+                    childEl.addClass(viewClass);
+                    this.$el.append(childEl);
+                    childEnv = this.env.addChild();
+                    childEnv.setEl(childEl);
+                    this.controller(this.controllers[viewClass], {env: childEnv});
+                }
+            }
+            return this;
+        },
+        remove: function() {
+            _.each(this.views, function(view, index, list) {
+                view.remove();
+            }, this);
+
+          this.$el.remove();
+          this.stopListening();
+
+          return this;
+        }
+    });
+
     var LayoutView = View.extend({
         propList: ['views', 'wrapperTag'],
         wrapperTag: 'div',
@@ -133,6 +171,7 @@
         View: View,
         LayoutView: LayoutView,
         List: ListView,
-        ListItem: ListItemView
+        ListItem: ListItemView,
+        MultiController: MultiControllerView
     };
 })(window);

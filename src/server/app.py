@@ -2,6 +2,8 @@ import copy
 import json
 import os
 
+from datetime import date
+
 from flask import Flask, render_template, request, session
 
 # Application config
@@ -37,6 +39,7 @@ storageMsg = [
 		'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon&s=40',
 		'msg': 'Hello world!',
 		'published': True,
+		'publishDate': '6/20/2013',
 		'rating': None,
 	},
 	{
@@ -45,6 +48,7 @@ storageMsg = [
 		'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon&s=40',
 		'msg': 'Woe is me...',
 		'published': True,
+		'publishDate': '7/20/2013',
 		'rating': None
 	},
 ]
@@ -105,6 +109,7 @@ def api_msgs_draft():
 			'avatar': session['user']['avatar'],
 			'msg': '',
 			'published': False,
+			'publishDate': date.today().strftime("%d/%m/%y"),
 			'rating': None
 		}
 		draft['id'] = len(storageMsg)
@@ -127,6 +132,7 @@ def api_msgs_save(msg_id):
 def api_msgs_new():
 	data = json.loads(request.data)
 	data['id'] = len(storageMsg)
+	data['publishedDate'] = date.today().strftime("%d/%m/%y")
 	msg = save_msg(data)
 	return json.dumps(msg_to_view_model(msg, session['user']))
 

@@ -2,12 +2,22 @@ import copy
 import json
 import os
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 
+
+SECRET_KEY = 'Secret Key'
+DEBUG = True
 
 app = Flask(__name__)
 
-currentUser = {'name': 'John Doe'}
+currentUser = {
+	'name': 'John Doe'
+}
+
+storageUsers = {
+	'John Doe': { 'id': 1, 'name': 'John Doe', 'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon'},
+	'Jane Doe': { 'id': 2, 'name': 'Jane Doe', 'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon'}
+}
 
 storageMsg = [
 	{'id': 0, 'name': 'John Doe', 'msg': 'Hello world!', 'published': True, 'rating': None, 'rating_reason': ''},
@@ -73,7 +83,7 @@ def index():
 
 def main():
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(host='0.0.0.0', port=port)
 
 
 if __name__ == '__main__':

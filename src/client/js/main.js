@@ -29,8 +29,8 @@ var MsgModel = Backbone.Model.extend({
         return this.save({rating: rating, rating_reason: reason}, {
             url: this.urlRoot + "/" + model.id + "/" + this.methods.rate,
             success: function(model, resp) {
-                if(successFunc){
-                    successFunc(model, resp);
+                if (successFn) {
+                    successFn(model, resp);
                 }
             },
             error: function(model, resp) {

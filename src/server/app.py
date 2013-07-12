@@ -59,13 +59,14 @@ storageMsg = [
 
 def save_msg(data):
 	msg = copy.deepcopy(data)
-	del msg['isOwner']
+	del msg['owner']
 	storageMsg.append(msg)
 	return msg
 
 def msg_to_view_model(msg, user):
 	vm = copy.deepcopy(msg)
-	vm['isOwner'] = (vm['name'] == user['name'])
+	vm['owner'] = (vm['name'] == user['name'])
+	vm['collapsed'] = vm['published']
 	return vm
 
 def user_to_view_model(user):
@@ -142,6 +143,8 @@ def api_msgs():
 	for row in storageMsg:
 		if row['published']:
 			data.append(msg_to_view_model(row, session['user']))
+	if len(data) > 0:
+		data[len(data) - 1]['collapsed'] = False
 	return json.dumps(data)
 
 

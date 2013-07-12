@@ -12,6 +12,7 @@ app = Flask(__name__)
 currentUser = {
 	'name': 'John Doe'
 }
+app.config.from_object(__name__)
 
 storageUsers = {
 	'John Doe': {

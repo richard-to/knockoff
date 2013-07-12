@@ -96,7 +96,7 @@
         tagName: 'ul',
         itemView: ListItemView,
         initialize: function() {
-            this.collection.on('add', this.appendItem);
+            this.collection.on('add', this.appendItem, this);
         },
         render: function() {
             var self = this;

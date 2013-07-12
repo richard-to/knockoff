@@ -113,6 +113,10 @@ var GoalView = knockoff.ui.View.extend({
     template: _.template($("#ko-goalview-tmpl").html()),
     render: function() {
         this.$el.html(this.template(this.model.attributes));
+        return this;
+    }
+});
+
 
 var MsgItemView = knockoff.ui.ListItem.extend({
     inject: ['user'],
@@ -268,16 +272,16 @@ knockoff.module('goalServices')
     .value('GoalModel', GoalModel)
     .value('GoalView', GoalView);
 
-knockoff.module('goalModule', ['appServices', 'msgServices'])
-    .config(function(routerProvider) {
-        routerProvider.add('msg', 'msg', 'goalController');
-    })
+knockoff.module('goalModule', ['appServices', 'goalServices'])
     .controller('goalController', function(env, user, router, GoalModel, GoalView) {
-        var goal = new GoalModel({id: 0});
-        goal.fetch();
-        var goalView = new GoalView({model: goal});
-        env.$el.html(goalView.render().el);
+        if (user.isLoggedIn()) {
+            var goal = new GoalModel({id: 0});
+            goal.fetch();
+            var goalView = new GoalView({model: goal});
+            env.$el.html(goalView.render().el);
+        }
     });
+
 knockoff.module('msgServices')
     .value('LayoutView', knockoff.ui.LayoutView)
     .value('MsgModel', MsgModel)
@@ -286,7 +290,6 @@ knockoff.module('msgServices')
     .value('MsgComposeView', MsgComposeView);
 
 knockoff.module('msgModule', ['appServices', 'msgServices'])
-
     .controller('msgController', function(env, user, router, MsgList, LayoutView, ListView, MsgComposeView) {
         if (user.isLoggedIn()) {
             var msgList = new MsgList();
@@ -305,6 +308,22 @@ knockoff.module('msgModule', ['appServices', 'msgServices'])
         } else {
             router.navigate('', {trigger: true});
         }
+    });
+
+knockoff.module('mainModule', ['msgModule', 'goalModule'])
+    .value('MultiControllerView', knockoff.ui.MultiController)
+    .config(function(routerProvider) {
+        routerProvider.add('msg', 'msg', 'mainController');
+    })
+    .controller('mainController', function(env, MultiControllerView) {
+        var view = new MultiControllerView({
+            env: env,
+            controllers: {
+                'ko-view-goals': 'goalController',
+                'ko-view-msg': 'msgController'
+            }
+        });
+        env.$el.html(view.render().el);
     });
 
 knockoff.module('homeModule', ['appServices'])

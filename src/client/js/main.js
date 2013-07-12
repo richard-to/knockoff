@@ -38,9 +38,9 @@ var MsgModel = Backbone.Model.extend({
     defaults: {
         'name': '',
         'msg': 'No message.',
+        'avatar': '',
         'published': false,
         'rating': null,
-        'rating_reason': '',
         'isOwner': false
     },
     upvote: function(successFn, errorFn) {

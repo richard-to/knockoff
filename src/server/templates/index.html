@@ -47,8 +47,14 @@
 
         <script type="text/template" id="ko-listitemview-tmpl">
         <div class="row-fluid">
-            <div class="span12">
-                <p><small>Posted by: <%= model.name %></small></p>
+            <div class="span1">
+                <p><img src="<%= model.avatar %>" width="40" height="40" /></p>
+            </div>
+            <div class="span10">
+                <p><strong><%= model.name %></strong></p>
+            </div>
+            <div class="span1">
+                <p><strong><%= model.publishDate %></strong></p>
             </div>
         </div>
         <div class="row-fluid">

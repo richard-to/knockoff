@@ -40,6 +40,7 @@ var MsgModel = Backbone.Model.extend({
         'msg': 'No message.',
         'avatar': '',
         'published': false,
+        'publishDate': '',
         'rating': null,
         'isOwner': false
     },

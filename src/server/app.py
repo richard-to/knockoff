@@ -21,12 +21,12 @@ storageUsers = {
 	'John Doe': {
 		'id': 1,
 		'name': 'John Doe',
-		'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon'
+		'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon&s=40'
 	},
 	'Jane Doe': {
 		'id': 2,
 		'name': 'Jane Doe',
-		'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon'
+		'avatar': 'http://www.gravatar.com/avatar/910db02478c40c6d54962268f613fa22?d=identicon&s=40'
 	}
 }
 
@@ -34,7 +34,7 @@ storageMsg = [
 	{
 		'id': 0,
 		'name': 'John Doe',
-		'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon',
+		'avatar': 'http://www.gravatar.com/avatar/0ab06730a57651a0e965008aac134102?d=identicon&s=40',
 		'msg': 'Hello world!',
 		'published': True,
 		'rating': None,

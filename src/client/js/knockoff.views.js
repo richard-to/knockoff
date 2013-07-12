@@ -49,10 +49,11 @@
     View.extend = Backbone.View.extend;
 
     var MultiControllerView = View.extend({
-        propList: ['env', 'controllers', 'wrapperTag', 'ctrlSuffix'],
+        propList: ['env', 'controllers', 'wrapperTag', 'ctrlSuffix', 'ctrlAttr'],
         inject: ['controller'],
         wrapperTag: 'div',
         ctrlSuffix: 'Controller',
+        ctrlAttr: 'data-ctrl',
         controllers: null,
         render: function() {
             var viewClass = null;
@@ -62,8 +63,8 @@
                 this.$el.html(this.template());
                 if (this.controllers === null) {
                     var self = this;
-                    this.$el.find('[data-ctrl]').each(function(index) {
-                        var name =  $(this).attr('data-ctrl') + self.ctrlSuffix;
+                    this.$el.find('[' + this.ctrlAttr + ']').each(function(index) {
+                        var name =  $(this).attr(self.ctrlAttr) + self.ctrlSuffix;
                         self.renderController(name, $(this));
                     });
                 } else {

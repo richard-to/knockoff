@@ -104,11 +104,10 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             model: this.model.attributes
         };
         this.$el.html(this.template(data));
-
         if (this.model.get('rating') === 1) {
-            this.upvote();
+            this.upvoteRender();
         } else if (this.model.get('rating') === 0) {
-            this.downvote();
+            this.downvoteRender();
         }
 
         if (this.model.get('collapsed') === true) {
@@ -127,6 +126,9 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             return;
         }
         this.model.upvote();
+        this.upvoteRender();
+    },
+    upvoteRender: function() {
         this.$el.find('.ko-rating').addClass('ko-disabled');
         this.$el.find('.ko-upvote').addClass('btn-success').addClass('disabled');
         this.$el.find('.ko-upvote i').addClass('icon-white');
@@ -137,6 +139,9 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             return;
         }
         this.model.downvote();
+        this.downvoteRender();
+    },
+    dowvoteRender: function() {
         this.$el.find('.ko-rating').addClass('ko-disabled');
         this.$el.find('.ko-downvote').addClass('btn-danger').addClass('disabled');
         this.$el.find('.ko-downvote i').addClass('icon-white');

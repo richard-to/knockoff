@@ -29,6 +29,20 @@ var UserModel = Backbone.Model.extend({
     }
 });
 
+var GoalModel = Backbone.Model.extend({
+    urlRoot: '/api/goals',
+    methods: {
+
+    },
+    defaults: {
+        'name': '',
+        'owner': false,
+        'goal': '',
+        'tasks': [],
+        'approved': false
+    }
+});
+
 var MsgModel = Backbone.Model.extend({
     urlRoot: '/api/msgs',
     methods: {
@@ -243,6 +257,7 @@ knockoff.module('appServices')
 
 knockoff.module('msgServices')
     .value('LayoutView', knockoff.ui.LayoutView)
+    .value('GoalModel', GoalModel)
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
     .value('ListView', knockoff.ui.List.extend({itemView: MsgItemView}))
@@ -252,8 +267,12 @@ knockoff.module('msgModule', ['appServices', 'msgServices'])
     .config(function(routerProvider) {
         routerProvider.add('msg', 'msg', 'msgController');
     })
-    .controller('msgController', function(env, user, router, MsgList, LayoutView, ListView, MsgComposeView) {
+    .controller('msgController', function(env, user, router, GoalModel, MsgList, LayoutView, ListView, MsgComposeView) {
         if (user.isLoggedIn()) {
+            var goal = new GoalModel();
+            goal.id = 0;
+            goal.fetch();
+
             var msgList = new MsgList();
             msgList.fetch();
 

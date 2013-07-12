@@ -1,6 +1,31 @@
 var UserModel = Backbone.Model.extend({
+    urlRoot: '/api/users',
+    methods: {
+        'login': 'login'
+    },
     defaults: {
-        'name': ''
+        'name': '',
+        'avatar': '',
+        'isLoggedIn': false
+    },
+    isLoggedIn: function() {
+        return this.get('isLoggedIn');
+    },
+    login: function(successFn, errorFn) {
+        var model = this;
+        return this.save({}, {
+            url: this.urlRoot + "/" + this.methods.login,
+            success: function(model, resp) {
+                if (successFn) {
+                    successFn(model, resp);
+                }
+            },
+            error: function(model, resp) {
+                if (errorFn) {
+                    errorFn(model, resp);
+                }
+            }
+        });
     }
 });
 

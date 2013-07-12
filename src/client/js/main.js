@@ -126,7 +126,7 @@ var MsgItemView = knockoff.ui.ListItem.extend({
 });
 
 var HomeView = knockoff.ui.View.extend({
-    propList: ['router'],
+    inject: ['router'],
     tagName: 'div',
     template: _.template($("#ko-home-tmpl").html()),
     initialize: function() {

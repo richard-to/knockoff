@@ -46,7 +46,7 @@
         </script>
 
         <script type="text/template" id="ko-listitemview-tmpl">
-        <div class="row-fluid">
+        <div class="row-fluid ko-msg-header">
             <div class="span1">
                 <p><img src="<%= model.avatar %>" width="40" height="40" /></p>
             </div>
@@ -57,8 +57,9 @@
                 <p><strong><%= model.publishDate %></strong></p>
             </div>
         </div>
-        <div class="row-fluid">
-            <% if (!model.isOwner) { %>
+        <% if (model.collapsed == false) { %>
+        <div class="row-fluid ko-msg-body">
+            <% if (!model.owner) { %>
             <div class="span1 ko-rating"</div>
                 <p>
                     <button class="btn ko-upvote"><i class="icon-thumbs-up"></i></button>
@@ -76,6 +77,7 @@
             </div>
             <% } %>
         </div>
+        <% } %>
         </script>
 
         <script type="text/template" id="ko-composeview-tmpl">

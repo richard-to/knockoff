@@ -42,7 +42,15 @@ var MsgModel = Backbone.Model.extend({
         'published': false,
         'publishDate': '',
         'rating': null,
-        'isOwner': false
+        'owner': false,
+        'collapsed': false
+    },
+    toggleCollapse: function() {
+        if (this.get('collapsed') === true) {
+            this.set('collapsed', false);
+        } else {
+            this.set('collapsed', true);
+        }
     },
     upvote: function(successFn, errorFn) {
         return this.rate(1, '', successFn, errorFn);
@@ -87,7 +95,8 @@ var MsgItemView = knockoff.ui.ListItem.extend({
     },
     events: {
         'click .ko-upvote': 'upvote',
-        'click .ko-downvote': 'downvote'
+        'click .ko-downvote': 'downvote',
+        'click .ko-msg-header': 'collapse'
     },
     render: function() {
         var data = {
@@ -102,9 +111,18 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             this.downvote();
         }
 
+        if (this.model.get('collapsed') === true) {
+            this.$el.addClass('collapsed');
+        } else {
+            this.$el.removeClass('collapsed');
+        }
         return this;
     },
-    upvote: function(event) {
+    collapse: function() {
+        this.model.toggleCollapse();
+        this.render();
+    },
+    upvote: function() {
         if (this.$el.find('.ko-rating.ko-disabled').size() > 0) {
             return;
         }

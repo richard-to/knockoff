@@ -29,17 +29,52 @@ var UserModel = Backbone.Model.extend({
     }
 });
 
+var TaskModel = Backbone.Model.extend({
+    defaults: {
+        'description': '',
+        'completed': false,
+        'checked': ''
+    },
+    initialize: function() {
+        this.on('change', this.syncChecked, this);
+    },
+    syncChecked: function() {
+        var completed = this.get('completed');
+        if (completed) {
+            this.set('checked', 'checked="checked"');
+        } else {
+            this.set('checked', '');
+        }
+    }
+});
+
+var TaskCollection = Backbone.Collection.extend({
+    model: TaskModel
+});
+
 var GoalModel = Backbone.Model.extend({
     urlRoot: '/api/goals',
-    methods: {
-
-    },
     defaults: {
         'name': '',
         'owner': false,
         'goal': '',
         'tasks': [],
         'approved': false
+    },
+    methods: {
+
+    },
+    taskCollection: TaskCollection,
+    taskList: null,
+    initialize: function() {
+        this.taskList = new this.taskCollection();
+        this.on('change', this.syncTasks, this);
+    },
+    syncTasks: function() {
+        var tasks = this.get('tasks');
+        for (var i = 0; i < tasks.length; ++i) {
+            this.taskList.add(tasks[i]);
+        }
     }
 });
 
@@ -264,15 +299,25 @@ knockoff.module('appServices')
     .value('user', new UserModel());
 
 knockoff.module('goalServices')
+    .value('LayoutView', knockoff.ui.LayoutView)
     .value('GoalModel', GoalModel)
-    .value('GoalView', GoalView);
+    .value('GoalView', GoalView)
+    .value('CheckListView', knockoff.ui.List.extend({itemView: knockoff.ui.CheckListItem}));
 
 knockoff.module('goalModule', ['appServices', 'goalServices'])
-    .controller('goalController', function(env, GoalModel, GoalView) {
+    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, CheckListView) {
         var goal = new GoalModel({id: 0});
         goal.fetch();
         var goalView = new GoalView({model: goal});
-        env.$el.html(goalView.render().el);
+        var checkListView = new CheckListView({collection: goal.taskList});
+        var layoutView = new LayoutView({
+            className: 'ko-goaltask-view',
+            views: {
+                "ko-goalview": goalView,
+                "ko-taskview": checkListView
+            }
+        });
+        env.$el.html(layoutView.render().el);
     });
 
 knockoff.module('msgServices')

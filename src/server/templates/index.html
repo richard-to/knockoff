@@ -101,11 +101,33 @@
         </script>
 
         <script type="text/template" id="ko-checklistitemview-tmpl">
-            <p>
-                <input type="checkbox" <%= checked %> class="ko-checkbox" />
-                <%= description %>
-            </p>
+            <div class="row-fluid">
+                <div class="span1">
+                    <input type="checkbox" <%= checked %> class="ko-checkbox" />
+                </div>
+                <div class="span11">
+                    <span class="ko-description"><%= description %></span>
+                </div>
+            </div>
         </script>
+
+        <script type="text/template" id="ko-checklisteditview-tmpl">
+            <div class="row-fluid">
+                <div class="span1">
+                    <input type="checkbox" <%= checked %> class="ko-checkbox" />
+                </div>
+                <div class="span11">
+                    <p>
+                        <input type="text" class="ko-input" value="<%= description %>" />
+                        <br />
+                        <button class="btn btn-success ko-save">Save</button>
+                        <button class="btn btn-link ko-delete">Delete</button>
+                    </p>
+                </div>
+                <br />
+            </div>
+        </script>
+
         <script src="/static/js/jquery.js"></script>
         <script src="/static/js/underscore.js"></script>
         <script src="/static/js/backbone.js"></script>

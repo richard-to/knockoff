@@ -100,6 +100,12 @@
             <p><input type="text" class="ko-goal-input input-block-level" value="" placeholder="Enter your goal." /></p>
         </script>
 
+        <script type="text/template" id="ko-checklistitemview-tmpl">
+            <p>
+                <input type="checkbox" <%= checked %> class="ko-checkbox" />
+                <%= description %>
+            </p>
+        </script>
         <script src="/static/js/jquery.js"></script>
         <script src="/static/js/underscore.js"></script>
         <script src="/static/js/backbone.js"></script>

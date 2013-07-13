@@ -69,11 +69,27 @@ var GoalModel = Backbone.Model.extend({
     initialize: function() {
         this.taskList = new this.taskCollection();
         this.on('change', this.syncTasks, this);
+        this.taskList.on('add', this.saveTasks, this);
+        this.taskList.on('change', this.saveTasks, this);
+        this.taskList.on('remove', this.saveTasks, this);
+    },
+    ignoreChangeEvent: false,
+    saveTasks: function() {
+        if (this.ignoreChangeEvent === false) {
+            this.ignoreChangeEvent = true;
+            this.set('tasks', this.taskList.toJSON());
+            this.save();
+            this.ignoreChangeEvent = false;
+        }
     },
     syncTasks: function() {
-        var tasks = this.get('tasks');
-        for (var i = 0; i < tasks.length; ++i) {
-            this.taskList.add(tasks[i]);
+        if (this.ignoreChangeEvent === false) {
+            var tasks = this.get('tasks');
+            this.ignoreChangeEvent = true;
+            for (var i = 0; i < tasks.length; ++i) {
+                this.taskList.add(tasks[i]);
+            }
+            this.ignoreChangeEvent = false;
         }
     }
 });
@@ -302,19 +318,22 @@ knockoff.module('goalServices')
     .value('LayoutView', knockoff.ui.LayoutView)
     .value('GoalModel', GoalModel)
     .value('GoalView', GoalView)
+    .value('AppendListItemView', knockoff.ui.AppendListItem)
     .value('CheckListView', knockoff.ui.List.extend({itemView: knockoff.ui.CheckListItem}));
 
 knockoff.module('goalModule', ['appServices', 'goalServices'])
-    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, CheckListView) {
+    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, CheckListView, AppendListItemView) {
         var goal = new GoalModel({id: 0});
         goal.fetch();
         var goalView = new GoalView({model: goal});
         var checkListView = new CheckListView({collection: goal.taskList});
+        var appendView = new AppendListItemView({collection: goal.taskList});
         var layoutView = new LayoutView({
             className: 'ko-goaltask-view',
             views: {
                 "ko-goalview": goalView,
-                "ko-taskview": checkListView
+                "ko-taskview": checkListView,
+                'ko-appendview': appendView
             }
         });
         env.$el.html(layoutView.render().el);

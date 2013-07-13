@@ -138,6 +138,69 @@
         }
     });
 
+    var AppendListItemView = View.extend({
+        tagName: 'div',
+        template: _.template($("#ko-appenditemview-tmpl").html()),
+        templateNew: _.template($("#ko-appenditemnewview-tmpl").html()),
+        events: {
+            'click .ko-description': 'renderNew',
+            'blur .ko-input': 'blur',
+            'mousedown .ko-save': 'lock',
+            'click .ko-save': 'save'
+        },
+        editMode: false,
+        editModeLock: false,
+        render: function() {
+            this.exitEditMode();
+            this.unlock();
+            this.$el.html(this.template());
+            return this;
+        },
+        renderNew: function() {
+            this.enterEditMode();
+            this.unlock();
+            this.$el.html(this.templateNew());
+            this.$el.find('.ko-input').focus();
+            return this;
+        },
+        blur: function() {
+            if (this.isUnlocked()) {
+                this.render();
+            }
+        },
+        save: function() {
+            var val = this.$el.find('.ko-input').val();
+            if (val !== '') {
+                var model = new this.collection.model({
+                    'description': this.$el.find('.ko-input').val()
+                });
+                this.collection.add(model);
+                this.render();
+            } else {
+                this.$el.find('.ko-input').focus();
+            }
+            this.unlock();
+        },
+        isEditMode: function() {
+            return this.editMode === true;
+        },
+        enterEditMode: function() {
+            this.editMode = true;
+        },
+        exitEditMode: function() {
+            this.editMode = false;
+        },
+        isUnlocked: function() {
+            return this.editModeLock === false;
+        },
+        lock: function() {
+            this.editModeLock = true;
+        },
+        unlock: function() {
+            this.editModeLock = false;
+        },
+    });
+
     var CheckListItemView = View.extend({
         tagName: 'li',
         template: _.template($("#ko-checklistitemview-tmpl").html()),
@@ -191,7 +254,6 @@
             this.unlock();
         },
         delete: function() {
-            delete this.model;
             this.remove();
         },
         isEditMode: function() {
@@ -230,7 +292,7 @@
         },
         appendItem: function(item) {
             var view = new this.itemView({
-                model: item
+                model: item,
             });
             this.$el.append(view.render().el);
         }
@@ -257,6 +319,7 @@
         List: ListView,
         ListItem: ListItemView,
         CheckListItem: CheckListItemView,
+        AppendListItem: AppendListItemView,
         MultiController: MultiControllerView
     };
 })(window);

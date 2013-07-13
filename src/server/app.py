@@ -123,6 +123,11 @@ def api_users_login():
 def api_goal_get(goal_id):
 	return json.dumps(goal_to_view_model(storageGoals[goal_id], session['user']))
 
+@app.route('/api/goals/<int:goal_id>', methods=['PUT'])
+def api_goal_update(goal_id):
+	data = json.loads(request.data)
+	storageGoals[goal_id] = data
+	return json.dumps(goal_to_view_model(storageGoals[goal_id], session['user']))
 # Msg api
 # -------
 

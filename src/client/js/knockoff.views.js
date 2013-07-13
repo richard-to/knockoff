@@ -141,10 +141,77 @@
     var CheckListItemView = View.extend({
         tagName: 'li',
         template: _.template($("#ko-checklistitemview-tmpl").html()),
+        templateEdit: _.template($("#ko-checklisteditview-tmpl").html()),
+        events: {
+            'click .ko-checkbox': 'check',
+            'mousedown .ko-checkbox': 'lock',
+            'click .ko-description': 'renderEdit',
+            'blur .ko-input': 'blur',
+            'mousedown .ko-save': 'lock',
+            'click .ko-save': 'save',
+            'click .ko-delete': 'delete',
+            'mousedown .ko-delete': 'lock',
+        },
+        editMode: false,
+        editModeLock: false,
         render: function() {
+            this.exitEditMode();
+            this.unlock();
             this.$el.html(this.template(this.model.attributes));
             return this;
-        }
+        },
+        renderEdit: function() {
+            this.enterEditMode();
+            this.unlock();
+            this.$el.html(this.templateEdit(this.model.attributes));
+            this.$el.find('.ko-input').focus();
+            return this;
+        },
+        check: function() {
+            this.model.set('completed', true);
+            this.$el.find('.ko-description').addClass('completed');
+            this.unlock();
+            if (this.isEditMode()) {
+                this.render();
+            }
+        },
+        blur: function() {
+            if (this.isUnlocked()) {
+                this.render();
+            }
+        },
+        save: function() {
+            var val = this.$el.find('.ko-input').val();
+            if (val !== '') {
+                this.model.set('description', this.$el.find('.ko-input').val());
+                this.render();
+            } else {
+                this.$el.find('.ko-input').focus();
+            }
+            this.unlock();
+        },
+        delete: function() {
+            delete this.model;
+            this.remove();
+        },
+        isEditMode: function() {
+            return this.editMode === true;
+        },
+        enterEditMode: function() {
+            this.editMode = true;
+        },
+        exitEditMode: function() {
+            this.editMode = false;
+        },
+        isUnlocked: function() {
+            return this.editModeLock === false;
+        },
+        lock: function() {
+            this.editModeLock = true;
+        },
+        unlock: function() {
+            this.editModeLock = false;
+        },
     });
 
     var ListView = View.extend({

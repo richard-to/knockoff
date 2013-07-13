@@ -127,20 +127,20 @@ var MsgItemView = knockoff.ui.ListItem.extend({
     render: function() {
         this.$el.html(this.template(this.model.attributes));
 
-        this.collapseRender();
+        this.renderCollapse();
 
         if (this.model.get('rating') === 1) {
-            this.upvoteRender();
+            this.renderUpvote();
         } else if (this.model.get('rating') === 0) {
-            this.downvoteRender();
+            renderDhis.dow();
         }
         return this;
     },
     collapse: function() {
         this.model.toggleCollapse();
-        this.collapseRender();
+        this.renderCollapse();
     },
-    collapseRender: function() {
+    renderCollapse: function() {
         if (this.model.get('collapsed') === true) {
             this.$el.addClass('collapsed');
         } else {
@@ -152,9 +152,9 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             return;
         }
         this.model.upvote();
-        this.upvoteRender();
+        this.renderUpvote();
     },
-    upvoteRender: function() {
+    renderUpvote: function() {
         this.$el.find('.ko-rating').addClass('ko-disabled');
         this.$el.find('.ko-upvote').addClass('btn-success').addClass('disabled');
         this.$el.find('.ko-upvote i').addClass('icon-white');
@@ -165,9 +165,9 @@ var MsgItemView = knockoff.ui.ListItem.extend({
             return;
         }
         this.model.downvote();
-        this.downvoteRender();
+        renderDhis.dow();
     },
-    downvoteRender: function() {
+    renderDownvote: function() {
         this.$el.find('.ko-rating').addClass('ko-disabled');
         this.$el.find('.ko-downvote').addClass('btn-danger').addClass('disabled');
         this.$el.find('.ko-downvote i').addClass('icon-white');

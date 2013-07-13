@@ -138,6 +138,15 @@
         }
     });
 
+    var CheckListItemView = View.extend({
+        tagName: 'li',
+        template: _.template($("#ko-checklistitemview-tmpl").html()),
+        render: function() {
+            this.$el.html(this.template(this.model.attributes));
+            return this;
+        }
+    });
+
     var ListView = View.extend({
         propList: ['itemView'],
         tagName: 'ul',
@@ -180,6 +189,7 @@
         LayoutView: LayoutView,
         List: ListView,
         ListItem: ListItemView,
+        CheckListItem: CheckListItemView,
         MultiController: MultiControllerView
     };
 })(window);

@@ -154,11 +154,11 @@
         }
     });
 
-    var AddItemView = View.extend({
+    var EditableView = View.extend({
         propList: ['templateEdit'],
         tagName: 'div',
-        template: '#ko-additem-tmpl',
-        templateEdit: '#ko-additemedit-tmpl',
+        template: '#ko-editable-tmpl',
+        templateEdit: '#ko-editableedit-tmpl',
         events: {
             'click .ko-description': 'renderEdit',
             'blur .ko-input': 'blur',
@@ -226,7 +226,7 @@
         },
     });
 
-    var CheckItemView = AddItemView.extend({
+    var CheckItemView = EditableView.extend({
         tagName: 'li',
         template: '#ko-checkitem-tmpl',
         templateEdit: '#ko-checkitemedit-tmpl',

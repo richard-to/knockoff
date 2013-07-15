@@ -105,10 +105,8 @@
             this.controller(name, {env: childEnv});
         },
         remove: function() {
-
             this.$el.remove();
             this.stopListening();
-
             return this;
         }
     });

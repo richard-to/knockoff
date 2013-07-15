@@ -41,7 +41,7 @@
         </div>
         </script>
 
-        <script type="text/template" id="ko-loginview-tmpl">
+        <script type="text/template" id="ko-login-tmpl">
         <div class="row-fluid">
         <div class="span12">
             <h1>Sign in</h1>
@@ -51,13 +51,13 @@
         </div>
         </script>
 
-        <script type="text/template" id="ko-layoutview-tmpl">
-        <div class="ko-listview row-fluid"></div>
-        <div class="ko-composeview row-fluid"></div>
+        <script type="text/template" id="ko-layout-tmpl">
+        <div class="ko-view-list row-fluid"></div>
+        <div class="ko-view-compose row-fluid"></div>
         <p><a href="#" class="ko-link">Go home</a></p>
         </script>
 
-        <script type="text/template" id="ko-listitemview-tmpl">
+        <script type="text/template" id="ko-item-tmpl">
         <div class="row-fluid ko-msg-header">
             <div class="span1">
                 <p><img src="<%= avatar %>" width="40" height="40" class="img-polaroid" /></p>
@@ -91,16 +91,16 @@
         </div>
         </script>
 
-        <script type="text/template" id="ko-composeview-tmpl">
+        <script type="text/template" id="ko-compose-tmpl">
         <textarea class="ko-text input-block-level" rows="5"></textarea>
         <p><input type="submit" class="ko-submit btn btn-success" value="Reply" /></p>
         </script>
 
-        <script type="text/template" id="ko-goalview-tmpl">
+        <script type="text/template" id="ko-goal-tmpl">
             <p><input type="text" class="ko-goal-input input-block-level" value="" placeholder="Enter your goal." /></p>
         </script>
 
-        <script type="text/template" id="ko-checklistitemview-tmpl">
+        <script type="text/template" id="ko-checkitem-tmpl">
             <div class="row-fluid">
                 <div class="span1">
                     <input type="checkbox" <%= checked %> class="ko-checkbox" />
@@ -111,7 +111,7 @@
             </div>
         </script>
 
-        <script type="text/template" id="ko-checklisteditview-tmpl">
+        <script type="text/template" id="ko-checkitemedit-tmpl">
             <div class="row-fluid">
                 <div class="span1">
                     <input type="checkbox" <%= checked %> class="ko-checkbox" />
@@ -128,7 +128,7 @@
             </div>
         </script>
 
-        <script type="text/template" id="ko-appenditemview-tmpl">
+        <script type="text/template" id="ko-additem-tmpl">
             <div class="row-fluid">
                 <div class="span11 offset1 ko-description">
                     Add a task that will help you reach your goal.
@@ -136,7 +136,7 @@
             </div>
         </script>
 
-        <script type="text/template" id="ko-appenditemnewview-tmpl">
+        <script type="text/template" id="ko-additemedit-tmpl">
             <div class="row-fluid">
                 <div class="span11 offset1">
                     <p>

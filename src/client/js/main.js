@@ -161,7 +161,7 @@ var MsgList = Backbone.Collection.extend({
 
 var GoalView = knockoff.ui.View.extend({
     tagName: 'div',
-    template: _.template($("#ko-goalview-tmpl").html()),
+    template: _.template($("#ko-goal-tmpl").html()),
     render: function() {
         this.$el.html(this.template(this.model.attributes));
         return this;
@@ -169,7 +169,7 @@ var GoalView = knockoff.ui.View.extend({
 });
 
 
-var MsgItemView = knockoff.ui.ListItem.extend({
+var MsgItemView = knockoff.ui.Item.extend({
     events: {
         'click .ko-upvote': 'upvote',
         'click .ko-downvote': 'downvote',
@@ -183,7 +183,7 @@ var MsgItemView = knockoff.ui.ListItem.extend({
         if (this.model.get('rating') === 1) {
             this.renderUpvote();
         } else if (this.model.get('rating') === 0) {
-            renderDhis.dow();
+            this.renderDownvote();
         }
         return this;
     },
@@ -229,7 +229,7 @@ var MsgItemView = knockoff.ui.ListItem.extend({
 var HomeView = knockoff.ui.View.extend({
     inject: ['router'],
     tagName: 'div',
-    template: _.template($("#ko-home-tmpl").html()),
+    template: '#ko-home-tmpl',
     initialize: function() {
         _.bindAll(this, 'render', 'link');
     },
@@ -249,7 +249,7 @@ var HomeView = knockoff.ui.View.extend({
 var LoginView = knockoff.ui.View.extend({
     inject: ['router'],
     tagName: 'div',
-    template: _.template($("#ko-loginview-tmpl").html()),
+    template: '#ko-login-tmpl',
     events: {
         'click .ko-submit': 'submit'
     },
@@ -269,7 +269,7 @@ var LoginView = knockoff.ui.View.extend({
 var MsgComposeView = knockoff.ui.View.extend({
     propList: ['autosave', 'autosaveInterval'],
     tagName: 'div',
-    template: _.template($("#ko-composeview-tmpl").html()),
+    template: '#ko-compose-tmpl',
     autosave: false,
     autosaveInterval: 10000,
     initialize: function() {
@@ -315,32 +315,32 @@ knockoff.module('appServices')
     .value('user', new UserModel());
 
 knockoff.module('goalServices')
-    .value('LayoutView', knockoff.ui.LayoutView)
+    .value('LayoutView', knockoff.ui.Layout)
     .value('GoalModel', GoalModel)
     .value('GoalView', GoalView)
-    .value('AppendListItemView', knockoff.ui.AppendListItem)
-    .value('CheckListView', knockoff.ui.List.extend({itemView: knockoff.ui.CheckListItem}));
+    .value('AddItemView', knockoff.ui.AddItem)
+    .value('CheckListView', knockoff.ui.List.extend({itemView: knockoff.ui.CheckItem}));
 
 knockoff.module('goalModule', ['appServices', 'goalServices'])
-    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, CheckListView, AppendListItemView) {
+    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, CheckListView, AddItemView) {
         var goal = new GoalModel({id: 0});
         goal.fetch();
         var goalView = new GoalView({model: goal});
         var checkListView = new CheckListView({collection: goal.taskList});
-        var appendView = new AppendListItemView({collection: goal.taskList});
+        var appendView = new AddItemView({collection: goal.taskList});
         var layoutView = new LayoutView({
-            className: 'ko-goaltask-view',
+            className: 'ko-view-goaltask',
             views: {
-                "ko-goalview": goalView,
-                "ko-taskview": checkListView,
-                'ko-appendview': appendView
+                "ko-view-goal": goalView,
+                "ko-view-task": checkListView,
+                'ko-view-add': appendView
             }
         });
         env.$el.html(layoutView.render().el);
     });
 
 knockoff.module('msgServices')
-    .value('LayoutView', knockoff.ui.LayoutView)
+    .value('LayoutView', knockoff.ui.Layout)
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
     .value('ListView', knockoff.ui.List.extend({itemView: MsgItemView}))
@@ -354,10 +354,10 @@ knockoff.module('msgModule', ['appServices', 'msgServices'])
         var listView = new ListView({collection: msgList});
         var composeView = new MsgComposeView({collection: msgList}, ['user']);
         var layoutView = new LayoutView({
-            template: _.template($("#ko-layoutview-tmpl").html()),
+            template: '#ko-layout-tmpl',
             views: {
-                "ko-listview": listView,
-                "ko-composeview": composeView
+                "ko-view-list": listView,
+                "ko-view-compose": composeView
             }
         });
         env.$el.html(layoutView.render().el);
@@ -372,7 +372,7 @@ knockoff.module('mainModule', ['msgModule', 'goalModule'])
         if (user.isLoggedIn()) {
             var view = new MultiControllerView({
                 env: env,
-                template: _.template($("#ko-main-tmpl").html())
+                template: '#ko-main-tmpl'
             });
             env.$el.html(view.render().el);
         } else {

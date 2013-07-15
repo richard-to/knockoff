@@ -1,36 +1,36 @@
-.ko-listview ul {
+.ko-view-list ul {
 	list-style: none;
 	margin-left: 0;
 }
 
-.ko-taskview ul {
+.ko-view-task ul {
 	list-style: none;
 	margin-left: 0;
 }
 
-.ko-appendview div {
+.ko-view-add div {
 	color: #aaa;
 	text-decoration: underline;
 }
 
-.ko-listview li {
+.ko-view-list li {
 	border: 1px solid #ececec;
 	padding: 15px;
 }
 
-.ko-listview li.collapsed {
+.ko-view-list li.collapsed {
 	background: #fafafa;
 }
 
-.ko-listview li.collapsed .ko-msg-body {
+.ko-view-list li.collapsed .ko-msg-body {
 	display: none;
 }
 
-.ko-listview li .ko-msg-excerpt {
+.ko-view-list li .ko-msg-excerpt {
 	display: none;
 }
 
-.ko-listview li.collapsed .ko-msg-excerpt {
+.ko-view-list li.collapsed .ko-msg-excerpt {
 	display: block;
 }
 
@@ -40,7 +40,7 @@ input[type="text"].ko-goal-input {
 	line-height: 1;
 }
 
-.ko-goaltask-view {
+.ko-view-goaltask {
 	background: #f5f5f5;
 	border: 1px solid #e5e5e5;
 	padding: 15px;

@@ -24,7 +24,14 @@
         options.propList = options.propList || [];
         this.propList = _.union(this.propList, options.propList, this.inject);
 
-        this.template = options.template || this.template;
+        for (var prop in this) {
+            if (prop.indexOf('template') === 0) {
+                this[prop] = options[prop] || this[prop];
+                if (_.isString(this[prop])) {
+                    this[prop] =  _.template($(this[prop]).html());
+                }
+            }
+        }
 
         MixinConfigureProps.apply(this, [options, this.propList]);
         Backbone.View.apply(this, [options]);
@@ -129,21 +136,21 @@
         }
     });
 
-    var ListItemView = View.extend({
+    var ItemView = View.extend({
         tagName: 'li',
-        template: _.template($("#ko-listitemview-tmpl").html()),
+        template: '#ko-item-tmpl',
         render: function() {
             this.$el.html(this.template(this.model.attributes));
             return this;
         }
     });
 
-    var AppendListItemView = View.extend({
+    var AddItemView = View.extend({
         tagName: 'div',
-        template: _.template($("#ko-appenditemview-tmpl").html()),
-        templateNew: _.template($("#ko-appenditemnewview-tmpl").html()),
+        template: '#ko-additem-tmpl',
+        templateEdit: '#ko-additemedit-tmpl',
         events: {
-            'click .ko-description': 'renderNew',
+            'click .ko-description': 'renderEdit',
             'blur .ko-input': 'blur',
             'mousedown .ko-save': 'lock',
             'click .ko-save': 'save'
@@ -153,13 +160,21 @@
         render: function() {
             this.exitEditMode();
             this.unlock();
-            this.$el.html(this.template());
+            var data = {};
+            if (this.model) {
+                data = this.model.attributes;
+            }
+            this.$el.html(this.template(data));
             return this;
         },
-        renderNew: function() {
+        renderEdit: function() {
             this.enterEditMode();
             this.unlock();
-            this.$el.html(this.templateNew());
+            var data = {};
+            if (this.model) {
+                data = this.model.attributes;
+            }
+            this.$el.html(this.templateEdit(data));
             this.$el.find('.ko-input').focus();
             return this;
         },
@@ -201,10 +216,10 @@
         },
     });
 
-    var CheckListItemView = View.extend({
+    var CheckItemView = AddItemView.extend({
         tagName: 'li',
-        template: _.template($("#ko-checklistitemview-tmpl").html()),
-        templateEdit: _.template($("#ko-checklisteditview-tmpl").html()),
+        template: '#ko-checkitem-tmpl',
+        templateEdit: '#ko-checkitemedit-tmpl',
         events: {
             'click .ko-checkbox': 'check',
             'mousedown .ko-checkbox': 'lock',
@@ -215,31 +230,11 @@
             'click .ko-delete': 'delete',
             'mousedown .ko-delete': 'lock',
         },
-        editMode: false,
-        editModeLock: false,
-        render: function() {
-            this.exitEditMode();
-            this.unlock();
-            this.$el.html(this.template(this.model.attributes));
-            return this;
-        },
-        renderEdit: function() {
-            this.enterEditMode();
-            this.unlock();
-            this.$el.html(this.templateEdit(this.model.attributes));
-            this.$el.find('.ko-input').focus();
-            return this;
-        },
         check: function() {
             this.model.set('completed', true);
             this.$el.find('.ko-description').addClass('completed');
             this.unlock();
             if (this.isEditMode()) {
-                this.render();
-            }
-        },
-        blur: function() {
-            if (this.isUnlocked()) {
                 this.render();
             }
         },
@@ -255,31 +250,13 @@
         },
         delete: function() {
             this.remove();
-        },
-        isEditMode: function() {
-            return this.editMode === true;
-        },
-        enterEditMode: function() {
-            this.editMode = true;
-        },
-        exitEditMode: function() {
-            this.editMode = false;
-        },
-        isUnlocked: function() {
-            return this.editModeLock === false;
-        },
-        lock: function() {
-            this.editModeLock = true;
-        },
-        unlock: function() {
-            this.editModeLock = false;
-        },
+        }
     });
 
     var ListView = View.extend({
         propList: ['itemView'],
         tagName: 'ul',
-        itemView: ListItemView,
+        itemView: ItemView,
         initialize: function() {
             this.collection.on('add', this.appendItem, this);
         },
@@ -315,11 +292,11 @@
 
     knockoff.ui = {
         View: View,
-        LayoutView: LayoutView,
+        Layout: LayoutView,
         List: ListView,
-        ListItem: ListItemView,
-        CheckListItem: CheckListItemView,
-        AppendListItem: AppendListItemView,
+        Item: ItemView,
+        CheckItem: CheckItemView,
+        AddItem: AddItemView,
         MultiController: MultiControllerView
     };
 })(window);

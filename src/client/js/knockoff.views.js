@@ -24,7 +24,16 @@
         options.propList = options.propList || [];
         this.propList = _.union(this.propList, options.propList, this.inject);
 
-        for (var prop in this) {
+        this.template = options.template || this.template;
+        if (_.isString(this.template)) {
+            this.template =  _.template($(this.template).html());
+        }
+
+        var propList = this.propList;
+        var propListLength = propList.length;
+        var prop = null;
+        for (var g = 0; g < propListLength; ++g) {
+            prop = propList[g];
             if (prop.indexOf('template') === 0) {
                 this[prop] = options[prop] || this[prop];
                 if (_.isString(this[prop])) {
@@ -146,6 +155,7 @@
     });
 
     var AddItemView = View.extend({
+        propList: ['templateEdit'],
         tagName: 'div',
         template: '#ko-additem-tmpl',
         templateEdit: '#ko-additemedit-tmpl',

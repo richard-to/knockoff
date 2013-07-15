@@ -169,7 +169,7 @@ var GoalView = knockoff.ui.View.extend({
 });
 
 
-var MsgItemView = knockoff.ui.Item.extend({
+var MsgItemView = knockoff.ui.ItemView.extend({
     events: {
         'click .ko-upvote': 'upvote',
         'click .ko-downvote': 'downvote',
@@ -311,47 +311,44 @@ var MsgComposeView = knockoff.ui.View.extend({
     }
 });
 
-knockoff.module('appServices')
+knockoff.module('appService')
     .value('user', new UserModel());
 
-knockoff.module('goalServices')
-    .value('LayoutView', knockoff.ui.Layout)
+knockoff.module('goalService')
     .value('GoalModel', GoalModel)
     .value('GoalView', GoalView)
-    .value('AddItemView', knockoff.ui.AddItem)
-    .value('CheckListView', knockoff.ui.List.extend({itemView: knockoff.ui.CheckItem}));
+    .value('TaskView', knockoff.ui.ListView.extend({itemView: knockoff.ui.CheckItemView}));
 
-knockoff.module('goalModule', ['appServices', 'goalServices'])
-    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, CheckListView, AddItemView) {
+knockoff.module('goalModule', ['viewService', 'appService', 'goalService'])
+    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, TaskView, EditableView) {
         var goal = new GoalModel({id: 0});
         goal.fetch();
         var goalView = new GoalView({model: goal});
-        var checkListView = new CheckListView({collection: goal.taskList});
-        var appendView = new AddItemView({collection: goal.taskList});
+        var taskView = new TaskView({collection: goal.taskList});
+        var editableView = new EditableView({collection: goal.taskList});
         var layoutView = new LayoutView({
             className: 'ko-view-goaltask',
             views: {
                 "ko-view-goal": goalView,
-                "ko-view-task": checkListView,
-                'ko-view-add': appendView
+                "ko-view-task": taskView,
+                'ko-view-add': editableView
             }
         });
         env.$el.html(layoutView.render().el);
     });
 
-knockoff.module('msgServices')
-    .value('LayoutView', knockoff.ui.Layout)
+knockoff.module('msgService')
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
-    .value('ListView', knockoff.ui.List.extend({itemView: MsgItemView}))
+    .value('MsgListView', knockoff.ui.ListView.extend({itemView: MsgItemView}))
     .value('MsgComposeView', MsgComposeView);
 
-knockoff.module('msgModule', ['appServices', 'msgServices'])
-    .controller('msgController', function(env, MsgList, LayoutView, ListView, MsgComposeView) {
+knockoff.module('msgModule', ['viewService', 'appService', 'msgService'])
+    .controller('msgController', function(env, MsgList, LayoutView, MsgListView, MsgComposeView) {
         var msgList = new MsgList();
         msgList.fetch();
 
-        var listView = new ListView({collection: msgList});
+        var listView = new MsgListView({collection: msgList});
         var composeView = new MsgComposeView({collection: msgList}, ['user']);
         var layoutView = new LayoutView({
             template: '#ko-layout-tmpl',
@@ -363,8 +360,7 @@ knockoff.module('msgModule', ['appServices', 'msgServices'])
         env.$el.html(layoutView.render().el);
     });
 
-knockoff.module('mainModule', ['msgModule', 'goalModule'])
-    .value('MultiControllerView', knockoff.ui.MultiController)
+knockoff.module('mainModule', ['viewService', 'msgModule', 'goalModule'])
     .config(function(routerProvider) {
         routerProvider.add('msg', 'msg', 'mainController');
     })
@@ -380,7 +376,7 @@ knockoff.module('mainModule', ['msgModule', 'goalModule'])
         }
     });
 
-knockoff.module('homeModule', ['appServices'])
+knockoff.module('homeModule', ['appService'])
     .value('HomeView', HomeView)
     .value('LoginView', LoginView)
     .config(function(routerProvider) {

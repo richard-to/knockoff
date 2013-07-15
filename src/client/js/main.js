@@ -52,7 +52,52 @@ var TaskCollection = Backbone.Collection.extend({
     model: TaskModel
 });
 
-var GoalModel = Backbone.Model.extend({
+var ParentModel = function(attributes, options) {
+    var opts = {};
+    if (_.isObject(options)) {
+        opts = options;
+    } else if (_.isObject(attributes)) {
+        opts = attributes;
+    }
+    this.child = opts.child || this.child;
+    Backbone.Model.apply(this, [attributes, options]);
+};
+
+_.extend(ParentModel.prototype, Backbone.Model.prototype, {
+    child: [],
+    initialize: function() {
+        for (var i = 0; i < this.child.length; ++i) {
+            this[this.child[i] + 'List'] = new this[this.child[i] + 'Collection']();
+        }
+    },
+    fetch: function(options) {
+        options = options || {};
+        var success = options.success || null;
+        var child = this.child;
+        options.success = function(model) {
+            for (var i = 0; i < child.length; ++i) {
+                var attr = model.get(child[i]);
+                for (var g = 0; g < attr.length; ++g) {
+                    model[child[i] + 'List'].add(attr[g]);
+                }
+                if (success) {
+                    success(response);
+                }
+            }
+        };
+        Backbone.Model.prototype.fetch.apply(this, [options]);
+    },
+    save: function(key, val, options) {
+        for (var i = 0; i < this.child.length; ++i) {
+            this.set(this.child[i], model[this.child[i] + 'List'].toJSON(), {silent:true});
+        }
+        Backbone.Model.prototype.save.apply(this, [key, val, options]);
+    }
+});
+ParentModel.extend = Backbone.Model.extend;
+
+var GoalModel = ParentModel.extend({
+    child: ['tasks'],
     urlRoot: '/api/goals',
     defaults: {
         'name': '',
@@ -64,34 +109,8 @@ var GoalModel = Backbone.Model.extend({
     methods: {
 
     },
-    taskCollection: TaskCollection,
-    taskList: null,
-    initialize: function() {
-        this.taskList = new this.taskCollection();
-        this.on('change', this.syncTasks, this);
-        this.taskList.on('add', this.saveTasks, this);
-        this.taskList.on('change', this.saveTasks, this);
-        this.taskList.on('remove', this.saveTasks, this);
-    },
-    ignoreChangeEvent: false,
-    saveTasks: function() {
-        if (this.ignoreChangeEvent === false) {
-            this.ignoreChangeEvent = true;
-            this.set('tasks', this.taskList.toJSON());
-            this.save();
-            this.ignoreChangeEvent = false;
-        }
-    },
-    syncTasks: function() {
-        if (this.ignoreChangeEvent === false) {
-            var tasks = this.get('tasks');
-            this.ignoreChangeEvent = true;
-            for (var i = 0; i < tasks.length; ++i) {
-                this.taskList.add(tasks[i]);
-            }
-            this.ignoreChangeEvent = false;
-        }
-    }
+    tasksCollection: TaskCollection,
+    tasksList: null
 });
 
 var MsgModel = Backbone.Model.extend({
@@ -324,8 +343,8 @@ knockoff.module('goalModule', ['viewService', 'appService', 'goalService'])
         var goal = new GoalModel({id: 0});
         goal.fetch();
         var goalView = new GoalView({model: goal});
-        var taskView = new TaskView({collection: goal.taskList});
-        var editableView = new EditableView({collection: goal.taskList});
+        var taskView = new TaskView({collection: goal.tasksList});
+        var editableView = new EditableView({collection: goal.tasksList});
         var layoutView = new LayoutView({
             className: 'ko-view-goaltask',
             views: {

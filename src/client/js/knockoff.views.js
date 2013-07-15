@@ -285,6 +285,25 @@
         }
     });
 
+    knockoff.ui = {
+        View: View,
+        LayoutView: LayoutView,
+        ListView: ListView,
+        ItemView: ItemView,
+        CheckItemView: CheckItemView,
+        EditableView: EditableView,
+        MultiControllerView: MultiControllerView
+    };
+
+    knockoff.module('viewService')
+        .value('View', View)
+        .value('LayoutView', LayoutView)
+        .value('MultiControllerView', MultiControllerView)
+        .value('ListView', ListView)
+        .value('ItemView', ItemView)
+        .value('CheckItemView', CheckItemView)
+        .value('EditableView', EditableView);
+
     knockoff.provider.provider('router', function(controller) {
         var controllerLoader = controller;
         var router = new Backbone.Router();
@@ -299,14 +318,4 @@
             return router;
         };
     });
-
-    knockoff.ui = {
-        View: View,
-        Layout: LayoutView,
-        List: ListView,
-        Item: ItemView,
-        CheckItem: CheckItemView,
-        AddItem: AddItemView,
-        MultiController: MultiControllerView
-    };
 })(window);

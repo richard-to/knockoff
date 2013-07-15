@@ -259,6 +259,7 @@
             this.unlock();
         },
         delete: function() {
+            this.trigger('delete', this.model);
             this.remove();
         }
     });
@@ -281,7 +282,11 @@
             var view = new this.itemView({
                 model: item,
             });
+            view.on('delete', this.deleteItem, this);
             this.$el.append(view.render().el);
+        },
+        deleteItem: function(item) {
+            this.collection.remove(item);
         }
     });
 

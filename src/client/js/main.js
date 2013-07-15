@@ -68,6 +68,9 @@ _.extend(ParentModel.prototype, Backbone.Model.prototype, {
     initialize: function() {
         for (var i = 0; i < this.child.length; ++i) {
             this[this.child[i] + 'List'] = new this[this.child[i] + 'Collection']();
+            this[this.child[i] + 'List'].on("change", this.onChildEvent, this);
+            this[this.child[i] + 'List'].on("add", this.onChildEvent, this);
+            this[this.child[i] + 'List'].on("remove", this.onChildEvent, this);
         }
     },
     fetch: function(options) {
@@ -76,6 +79,7 @@ _.extend(ParentModel.prototype, Backbone.Model.prototype, {
         var child = this.child;
         options.success = function(model) {
             for (var i = 0; i < child.length; ++i) {
+                model[child[i] + 'List'].off("add", model.onChildEvent, model);
                 var attr = model.get(child[i]);
                 for (var g = 0; g < attr.length; ++g) {
                     model[child[i] + 'List'].add(attr[g]);
@@ -83,13 +87,17 @@ _.extend(ParentModel.prototype, Backbone.Model.prototype, {
                 if (success) {
                     success(response);
                 }
+                model[child[i] + 'List'].on("add", model.onChildEvent, model);
             }
         };
         Backbone.Model.prototype.fetch.apply(this, [options]);
     },
+    onChildEvent: function(model) {
+        this.save();
+    },
     save: function(key, val, options) {
         for (var i = 0; i < this.child.length; ++i) {
-            this.set(this.child[i], model[this.child[i] + 'List'].toJSON(), {silent:true});
+            this.set(this.child[i], this[this.child[i] + 'List'].toJSON(), {silent:true});
         }
         Backbone.Model.prototype.save.apply(this, [key, val, options]);
     }
@@ -186,7 +194,6 @@ var GoalView = knockoff.ui.View.extend({
         return this;
     }
 });
-
 
 var MsgItemView = knockoff.ui.ItemView.extend({
     events: {

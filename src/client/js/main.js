@@ -321,6 +321,7 @@ var MsgComposeView = knockoff.ui.View.extend({
         ['submit', 'click', 'submit'],
     ],
     outlets: {
+        textarea: 'msg'
     },
     onFetchDraft: function(model) {
         this.$el.find(this.ctrls.textarea).val(model.get(this.outlets.textarea));

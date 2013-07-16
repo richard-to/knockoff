@@ -180,12 +180,13 @@ var MsgList = Backbone.Collection.extend({
     model: MsgModel
 });
 
-var GoalView = knockoff.ui.View.extend({
-    tagName: 'div',
-    template: _.template($("#ko-tmpl-goal").html()),
-    render: function() {
-        this.$el.html(this.template(this.model.attributes));
-        return this;
+var GoalView = knockoff.ui.EditableView.extend({
+    template: '#ko-tmpl-goal',
+    templateEdit: '#ko-tmpl-goaledit',
+    outlets: {
+        content: 'goal',
+        textbox: 'goal',
+        what: 'test',
     }
 });
 

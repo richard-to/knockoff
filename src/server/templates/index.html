@@ -96,10 +96,6 @@
         <p><input type="submit" class="ko-ctrl-submit btn btn-success" value="Reply" /></p>
         </script>
 
-        <script type="text/template" id="ko-tmpl-goal">
-            <p><input type="text" class="ko-ctrl-textbox input-block-level" value="" placeholder="Enter your goal." /></p>
-        </script>
-
         <script type="text/template" id="ko-tmpl-checkitem">
             <div class="row-fluid">
                 <div class="span1">
@@ -126,6 +122,18 @@
                 </div>
                 <br />
             </div>
+        </script>
+
+        <script type="text/template" id="ko-tmpl-goal">
+            <p class="ko-ctrl-content"><%= content %></p>
+        </script>
+
+        <script type="text/template" id="ko-tmpl-goaledit">
+            <p>
+                <input type="text" class="ko-ctrl-textbox input-block-level" value="<%= textbox %>" placeholder="Enter your goal." />
+                <br />
+                <button class="btn btn-success ko-ctrl-save">Save</button>
+            </p>
         </script>
 
         <script type="text/template" id="ko-tmpl-editable">

@@ -58,21 +58,21 @@
         </script>
 
         <script type="text/template" id="ko-tmpl-item">
-        <div class="row-fluid ko-panel-header">
+        <div class="row-fluid ko-ctrl-header">
             <div class="span1">
                 <p><img src="<%= avatar %>" width="40" height="40" class="img-polaroid" /></p>
             </div>
             <div class="span10">
                 <p><strong><%= name %></strong></p>
-                <p class="ko-msg-excerpt"><em><%= excerpt %></em></p>
+                <p class="ko-ctrl-excerpt"><em><%= excerpt %></em></p>
             </div>
             <div class="span1">
                 <p><strong><%= publishDate %></strong></p>
             </div>
         </div>
-        <div class="row-fluid ko-msg-body">
+        <div class="row-fluid ko-ctrl-msg">
             <% if (!owner || rating == 1) { %>
-            <div class="span1 ko-rating"</div>
+            <div class="span1 ko-ctrl-rating"</div>
                 <p>
                     <button class="btn ko-ctrl-upvote"><i class="icon-thumbs-up"></i></button>
                 </p>
@@ -103,10 +103,10 @@
         <script type="text/template" id="ko-tmpl-checkitem">
             <div class="row-fluid">
                 <div class="span1">
-                    <input type="checkbox" <%= checked %> class="ko-ctrl-checkbox" />
+                    <input type="checkbox" <%= _checkbox %> class="ko-ctrl-checkbox" />
                 </div>
                 <div class="span11">
-                    <span class="ko-ctrl-content"><%= description %></span>
+                    <span class="ko-ctrl-content"><%= content %></span>
                 </div>
             </div>
         </script>
@@ -114,14 +114,14 @@
         <script type="text/template" id="ko-tmpl-checkitemedit">
             <div class="row-fluid">
                 <div class="span1">
-                    <input type="checkbox" <%= checked %> class="ko-ctrl-checkbox" />
+                    <input type="checkbox" <%= _checkbox %> class="ko-ctrl-checkbox" />
                 </div>
                 <div class="span11">
                     <p>
-                        <input type="text" class="ko-ctrl-textbox" value="<%= description %>" />
+                        <input type="text" class="ko-ctrl-textbox" value="<%= textbox %>" />
                         <br />
                         <button class="btn btn-success ko-ctrl-save">Save</button>
-                        <button class="btn btn-link ko-ctrl-delete">Delete</button>
+                        <button class="btn btn-link ko-ctrl-destroy">Delete</button>
                     </p>
                 </div>
                 <br />

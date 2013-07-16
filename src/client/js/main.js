@@ -32,20 +32,8 @@ var UserModel = Backbone.Model.extend({
 var TaskModel = Backbone.Model.extend({
     defaults: {
         'description': '',
-        'completed': false,
-        'checked': ''
+        'completed': false
     },
-    initialize: function() {
-        this.on('change', this.syncChecked, this);
-    },
-    syncChecked: function() {
-        var completed = this.get('completed');
-        if (completed) {
-            this.set('checked', 'checked="checked"');
-        } else {
-            this.set('checked', '');
-        }
-    }
 });
 
 var TaskCollection = Backbone.Collection.extend({
@@ -150,6 +138,15 @@ var MsgModel = Backbone.Model.extend({
             this.set('collapsed', true);
         }
     },
+    isCollapsed: function() {
+        return this.get('collapsed') === true;
+    },
+    isUpvote: function() {
+        return this.get('rating') === 1;
+    },
+    isDownvote: function() {
+        return this.get('rating') === 0;
+    },
     upvote: function(successFn, errorFn) {
         return this.rate(1, '', successFn, errorFn);
     },
@@ -196,19 +193,29 @@ var GoalView = knockoff.ui.View.extend({
 });
 
 var MsgItemView = knockoff.ui.ItemView.extend({
-    events: {
-        'click .ko-ctrl-upvote': 'upvote',
-        'click .ko-ctrl-downvote': 'downvote',
-        'click .ko-panel-header': 'collapse'
+    ctrls: {
+        rating: '.ko-ctrl-rating',
+        upvote: '.ko-ctrl-upvote',
+        downvote: '.ko-ctrl-downvote',
+        header: '.ko-ctrl-header'
+    },
+    actions: [
+        ['upvote', 'click', 'upvote'],
+        ['downvote', 'click', 'downvote'],
+        ['header', 'click', 'collapse']
+    ],
+    syncTemplate: function() {
+        return this.model.attributes;
     },
     render: function() {
-        this.$el.html(this.template(this.model.attributes));
+        var data = this.syncTemplate();
+        this.$el.html(this.template(data));
 
         this.renderCollapse();
 
-        if (this.model.get('rating') === 1) {
+        if (this.model.isUpvote()) {
             this.renderUpvote();
-        } else if (this.model.get('rating') === 0) {
+        } else if (this.model.isDownvote()) {
             this.renderDownvote();
         }
         return this;
@@ -218,37 +225,37 @@ var MsgItemView = knockoff.ui.ItemView.extend({
         this.renderCollapse();
     },
     renderCollapse: function() {
-        if (this.model.get('collapsed') === true) {
-            this.$el.addClass('ko-state-collapsed');
+        if (this.model.isCollapsed()) {
+            this.$el.addClass(this.states.collapsed);
         } else {
-            this.$el.removeClass('ko-state-collapsed');
+            this.$el.removeClass(this.states.collapsed);
         }
     },
     upvote: function() {
-        if (this.$el.find('.ko-panel-rating.ko-state-disabled').size() > 0) {
+        if (this.$el.find(this.ctrls.rating + '.' + this.states.disabled).size() > 0) {
             return;
         }
         this.model.upvote();
         this.renderUpvote();
     },
     renderUpvote: function() {
-        this.$el.find('.ko-panel-rating').addClass('ko-state-disabled');
-        this.$el.find('.ko-ctrl-upvote').addClass('btn-success').addClass('disabled');
-        this.$el.find('.ko-ctrl-upvote i').addClass('icon-white');
-        this.$el.find('.ko-ctrl-downvote').parent().hide();
+        this.$el.find(this.ctrls.rating).addClass(this.states.disabled);
+        this.$el.find(this.ctrls.upvote).addClass('btn-success').addClass('disabled');
+        this.$el.find(this.ctrls.upvote + ' i').addClass('icon-white');
+        this.$el.find(this.ctrls.downvote).parent().hide();
     },
     downvote: function() {
-        if (this.$el.find('.ko-ctrl-rating.ko-ctrl-disabled').size() > 0) {
+        if (this.$el.find(this.ctrls.rating + '.' + this.states.disabled).size() > 0) {
             return;
         }
         this.model.downvote();
         this.renderDownvote();
     },
     renderDownvote: function() {
-        this.$el.find('.ko-panel-rating').addClass('ko-state-disabled');
-        this.$el.find('.ko-ctrl-downvote').addClass('btn-danger').addClass('disabled');
-        this.$el.find('.ko-ctrl-downvote i').addClass('icon-white');
-        this.$el.find('.ko-ctrl-upvote').parent().hide();
+        this.$el.find(this.ctrls.rating).addClass(this.states.disabled);
+        this.$el.find(this.ctrls.downvote).addClass('btn-danger').addClass('disabled');
+        this.$el.find(this.ctrls.downvote + ' i').addClass('icon-white');
+        this.$el.find(this.ctrls.upvote).parent().hide();
     }
 });
 
@@ -259,13 +266,12 @@ var HomeView = knockoff.ui.View.extend({
     initialize: function() {
         _.bindAll(this, 'render', 'link');
     },
-    events: {
-        'click .ko-ctrl-link': 'link'
+    ctrls: {
+        link: '.ko-ctrl-link'
     },
-    render: function() {
-        this.$el.html(this.template());
-        return this;
-    },
+    actions: [
+        ['link', 'click', 'link'],
+    ],
     link: function() {
         this.router.navigate("msg", {trigger: true});
         return false;
@@ -276,16 +282,20 @@ var LoginView = knockoff.ui.View.extend({
     inject: ['router'],
     tagName: 'div',
     template: '#ko-tmpl-login',
-    events: {
-        'click .ko-ctrl-submit': 'submit'
+    ctrls: {
+        submit: '.ko-ctrl-submit',
+        textbox: '.ko-ctrl-textbox'
     },
-    render: function() {
-        this.$el.html(this.template());
-        return this;
+    actions: [
+        ['submit', 'click', 'submit'],
+    ],
+    outlets: {
+        textbox: 'name'
     },
     submit: function() {
         var router = this.router;
-        this.model.set('name', this.$el.find('.ko-ctrl-textbox').val());
+        var val = this.$el.find(this.ctrls.textbox).val();
+        this.syncModel(this.model, 'textbox', val);
         this.model.login(function(model) {
             router.navigate('msg', {trigger: true});
         });
@@ -337,21 +347,37 @@ var MsgComposeView = knockoff.ui.View.extend({
     }
 });
 
+var TaskItemView = knockoff.ui.CheckItemView.extend({
+    outlets: {
+        checkbox: 'completed',
+        content: 'description',
+        textbox: 'description'
+    }
+});
+
+var TaskAddItemView = knockoff.ui.AddItemView.extend({
+    outlets: {
+        textbox: 'description'
+    }
+});
+
 knockoff.module('appService')
     .value('user', new UserModel());
 
 knockoff.module('goalService')
     .value('GoalModel', GoalModel)
     .value('GoalView', GoalView)
-    .value('TaskView', knockoff.ui.ListView.extend({itemView: knockoff.ui.CheckItemView}));
+    .value('TaskItemView', TaskItemView)
+    .value('TaskAddItemView', TaskAddItemView)
+    .value('TaskView', knockoff.ui.ListView.extend({itemView: TaskItemView}));
 
 knockoff.module('goalModule', ['viewService', 'appService', 'goalService'])
-    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, TaskView, AddItemView) {
+    .controller('goalController', function(env, LayoutView, GoalModel, GoalView, TaskView, TaskAddItemView) {
         var goal = new GoalModel({id: 0});
         goal.fetch();
         var goalView = new GoalView({model: goal});
         var taskView = new TaskView({collection: goal.tasksList});
-        var addView = new AddItemView({collection: goal.tasksList});
+        var addView = new TaskAddItemView({collection: goal.tasksList});
         var layoutView = new LayoutView({
             className: 'ko-view-goaltask',
             views: {

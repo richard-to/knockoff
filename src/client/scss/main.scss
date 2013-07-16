@@ -22,22 +22,16 @@
 	background: #fafafa;
 }
 
-.ko-view-list li.ko-state-collapsed .ko-msg-body {
+.ko-view-list li.ko-state-collapsed .ko-ctrl-msg {
 	display: none;
 }
 
-.ko-view-list li .ko-msg-excerpt {
+.ko-view-list li .ko-ctrl-excerpt {
 	display: none;
 }
 
-.ko-view-list li.ko-state-collapsed .ko-msg-excerpt {
+.ko-view-list li.ko-state-collapsed .ko-ctrl-excerpt {
 	display: block;
-}
-
-input[type="text"].ko-goal-input {
-	font-size: 1.5em;
-	height:100%;
-	line-height: 1;
 }
 
 .ko-view-goaltask {

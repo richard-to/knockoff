@@ -11,6 +11,26 @@
         _.extend(this, _.pick(options, propList));
     };
 
+    var MixinActionsToEvents = function() {
+        var events = {};
+        var actions = this.actions || [];
+        if (_.isFunction(actions)) actions = actions();
+        var length = actions.length;
+        var action = null;
+        for (var i = 0; i < length; ++i) {
+            action = actions[i];
+            events[action[1] + ' ' + this.ctrls[action[0]]] = action[2];
+        }
+        this.events = _.extend(this.events, events);
+    };
+
+    var MixinStates = function() {
+        this.states = this.states || {};
+        this.states = _.extend({
+            disabled: 'ko-state-disabled',
+            collapsed: 'ko-state-collapsed'
+        }, this.states);
+    };
     var View = function(options, inject) {
         this.injector = knockoff.injector;
 
@@ -28,6 +48,17 @@
         if (_.isString(this.template)) {
             this.template =  _.template($(this.template).html());
         }
+
+        this.ctrls = options.ctrls || this.ctrls;
+        if (_.isFunction(this.ctrls)) this.ctrls = this.ctrls();
+
+        this.actions = options.actions || this.actions;
+        this.outlets = options.outlets || this.outlets;
+
+        MixinActionsToEvents.apply(this, []);
+
+        this.states = options.states || this.states;
+        MixinStates.apply(this, []);
 
         var propList = this.propList;
         var propListLength = propList.length;
@@ -49,7 +80,14 @@
         propList: [],
         template: undefined,
         events: {},
+        ctrls: {},
+        actions: [],
         outlets: {},
+        render: function() {
+            var data = this.syncTemplate();
+            this.$el.html(this.template(data));
+            return this;
+        },
         addEvents: function(events, name, fn) {
             if (_.isArray(events)) {
                 for (var i = 0; i < events.length; ++i) {
@@ -61,6 +99,30 @@
                 this[name] = fn;
             }
             this.delegateEvents();
+        },
+        syncTemplate: function() {
+            var output = {};
+            var data = {};
+            if (this.model) {
+                data = this.model.attributes;
+            }
+
+            var outlets = this.outlets;
+            var attr = null;
+            var val = null;
+            for (var name in outlets) {
+                attr = outlets[name] || null;
+                val = data[attr] || null;
+                output[name] = val || null;
+            }
+            return output;
+        },
+        syncModel: function(model, name, value) {
+            var attr = this.outlets[name];
+            if (attr) {
+                model.set(attr, value);
+            }
+            return model;
         }
     });
     View.extend = Backbone.View.extend;
@@ -147,8 +209,12 @@
     var ItemView = View.extend({
         tagName: 'li',
         template: '#ko-tmpl-item',
+        syncTemplate: function() {
+            return this.model.attributes;
+        },
         render: function() {
-            this.$el.html(this.template(this.model.attributes));
+            var data = this.syncTemplate();
+            this.$el.html(this.template(data));
             return this;
         }
     });
@@ -158,33 +224,36 @@
         tagName: 'div',
         template: '#ko-tmpl-editable',
         templateEdit: '#ko-tmpl-editableedit',
-        events: {
-            'click .ko-ctrl-content': 'renderEdit',
-            'blur .ko-ctrl-textbox': 'blur',
-            'mousedown .ko-ctrl-save': 'lock',
-            'click .ko-ctrl-save': 'save'
+        ctrls: {
+            content: '.ko-ctrl-content',
+            textbox: '.ko-ctrl-textbox',
+            save: '.ko-ctrl-save'
+        },
+        actions: [
+            ['content', 'click', 'renderEdit'],
+            ['textbox', 'blur', 'blur'],
+            ['save', 'mousedown', 'lock'],
+            ['save', 'click', 'save'],
+        ],
+        outlets: {
+            content: null,
+            textbox: null
         },
         editMode: false,
         editModeLock: false,
         render: function() {
             this.exitEditMode();
             this.unlock();
-            var data = {};
-            if (this.model) {
-                data = this.model.attributes;
-            }
+            var data = this.syncTemplate();
             this.$el.html(this.template(data));
             return this;
         },
         renderEdit: function() {
             this.enterEditMode();
             this.unlock();
-            var data = {};
-            if (this.model) {
-                data = this.model.attributes;
-            }
+            var data = this.syncTemplate();
             this.$el.html(this.templateEdit(data));
-            this.$el.find('.ko-ctrl-textbox').focus();
+            this.$el.find(this.ctrls.textbox).focus();
             return this;
         },
         blur: function() {
@@ -193,12 +262,13 @@
             }
         },
         save: function() {
-            var val = this.$el.find('.ko-ctrl-textbox').val();
+            var textbox = this.$el.find(this.ctrls.textbox);
+            var val = textbox.val();
             if (val !== '') {
-                this.model.set('description', this.$el.find('.ko-ctrl-textbox').val());
+                this.syncModel(this.model, 'textbox', val);
                 this.render();
             } else {
-                this.$el.find('.ko-ctrl-textbox').focus();
+                textbox.focus();
             }
             this.unlock();
         },
@@ -224,15 +294,15 @@
 
     var AddItemView = EditableView.extend({
         save: function() {
-            var val = this.$el.find('.ko-ctrl-textbox').val();
+            var textbox = this.$el.find(this.ctrls.textbox);
+            var val = textbox.val();
             if (val !== '') {
-                var model = new this.collection.model({
-                    'description': this.$el.find('.ko-ctrl-textbox').val()
-                });
+                var model = new this.collection.model();
+                this.syncModel(model, 'textbox', val);
                 this.collection.add(model);
                 this.render();
             } else {
-                this.$el.find('.ko-ctrl-textbox').focus();
+                textbox.focus();
             }
             this.unlock();
         },
@@ -242,25 +312,41 @@
         tagName: 'li',
         template: '#ko-tmpl-checkitem',
         templateEdit: '#ko-tmpl-checkitemedit',
-        events: {
-            'click .ko-ctrl-checkbox': 'check',
-            'mousedown .ko-ctrl-checkbox': 'lock',
-            'click .ko-ctrl-content': 'renderEdit',
-            'blur .ko-ctrl-textbox': 'blur',
-            'mousedown .ko-ctrl-save': 'lock',
-            'click .ko-ctrl-save': 'save',
-            'click .ko-ctrl-delete': 'delete',
-            'mousedown .ko-ctrl-delete': 'lock',
+        ctrls: function() {
+            return _.extend(EditableView.prototype.ctrls, {
+                checkbox: '.ko-ctrl-checkbox',
+                destroy: '.ko-ctrl-destroy'
+            });
+        },
+        actions: function() {
+            return EditableView.prototype.actions.concat([
+                ['checkbox', 'click', 'check'],
+                ['checkbox', 'mousedown', 'lock'],
+                ['destroy', 'click', 'destroy'],
+                ['destroy', 'mousedown', 'lock'],
+            ]);
+        },
+        outlets: {
+            content: null,
+            checkbox: null
+        },
+        syncTemplate: function() {
+            var output = EditableView.prototype.syncTemplate.call(this);
+            output._checkbox = '';
+            if (output.checkbox === true) {
+                output._checkbox = 'checked="checked"';
+            }
+            return output;
         },
         check: function() {
-            this.model.set('completed', true);
-            this.$el.find('.ko-ctrl-content').addClass('completed');
+            this.model.set(this.outlets.checkbox, true);
+            this.$el.find(this.ctrls.checkbox).addClass('ko-checked');
             this.unlock();
             if (this.isEditMode()) {
                 this.render();
             }
         },
-        delete: function() {
+        destroy: function() {
             this.trigger('delete', this.model);
             this.remove();
         }

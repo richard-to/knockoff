@@ -49,6 +49,7 @@
         propList: [],
         template: undefined,
         events: {},
+        outlets: {},
         addEvents: function(events, name, fn) {
             if (_.isArray(events)) {
                 for (var i = 0; i < events.length; ++i) {
@@ -65,11 +66,11 @@
     View.extend = Backbone.View.extend;
 
     var MultiControllerView = View.extend({
-        propList: ['env', 'controllers', 'wrapperTag', 'ctrlSuffix', 'ctrlAttr'],
+        propList: ['env', 'controllers', 'wrapperTag', 'controllerSuffix', 'controllerAttr'],
         inject: ['controller'],
         wrapperTag: 'div',
-        ctrlSuffix: 'Controller',
-        ctrlAttr: 'data-ctrl',
+        controllerSuffix: 'Controller',
+        controllerAttr: 'data-controller',
         controllers: null,
         render: function() {
             var viewClass = null;
@@ -79,8 +80,8 @@
                 this.$el.html(this.template());
                 if (this.controllers === null) {
                     var self = this;
-                    this.$el.find('[' + this.ctrlAttr + ']').each(function(index) {
-                        var name =  $(this).attr(self.ctrlAttr) + self.ctrlSuffix;
+                    this.$el.find('[' + this.controllerAttr + ']').each(function(index) {
+                        var name =  $(this).attr(self.controllerAttr) + self.controllerSuffix;
                         self.renderController(name, $(this));
                     });
                 } else {
@@ -145,7 +146,7 @@
 
     var ItemView = View.extend({
         tagName: 'li',
-        template: '#ko-item-tmpl',
+        template: '#ko-tmpl-item',
         render: function() {
             this.$el.html(this.template(this.model.attributes));
             return this;
@@ -155,13 +156,13 @@
     var EditableView = View.extend({
         propList: ['templateEdit'],
         tagName: 'div',
-        template: '#ko-editable-tmpl',
-        templateEdit: '#ko-editableedit-tmpl',
+        template: '#ko-tmpl-editable',
+        templateEdit: '#ko-tmpl-editableedit',
         events: {
-            'click .ko-description': 'renderEdit',
-            'blur .ko-input': 'blur',
-            'mousedown .ko-save': 'lock',
-            'click .ko-save': 'save'
+            'click .ko-ctrl-content': 'renderEdit',
+            'blur .ko-ctrl-textbox': 'blur',
+            'mousedown .ko-ctrl-save': 'lock',
+            'click .ko-ctrl-save': 'save'
         },
         editMode: false,
         editModeLock: false,
@@ -183,7 +184,7 @@
                 data = this.model.attributes;
             }
             this.$el.html(this.templateEdit(data));
-            this.$el.find('.ko-input').focus();
+            this.$el.find('.ko-ctrl-textbox').focus();
             return this;
         },
         blur: function() {
@@ -192,15 +193,12 @@
             }
         },
         save: function() {
-            var val = this.$el.find('.ko-input').val();
+            var val = this.$el.find('.ko-ctrl-textbox').val();
             if (val !== '') {
-                var model = new this.collection.model({
-                    'description': this.$el.find('.ko-input').val()
-                });
-                this.collection.add(model);
+                this.model.set('description', this.$el.find('.ko-ctrl-textbox').val());
                 this.render();
             } else {
-                this.$el.find('.ko-input').focus();
+                this.$el.find('.ko-ctrl-textbox').focus();
             }
             this.unlock();
         },
@@ -224,37 +222,43 @@
         },
     });
 
+    var AddItemView = EditableView.extend({
+        save: function() {
+            var val = this.$el.find('.ko-ctrl-textbox').val();
+            if (val !== '') {
+                var model = new this.collection.model({
+                    'description': this.$el.find('.ko-ctrl-textbox').val()
+                });
+                this.collection.add(model);
+                this.render();
+            } else {
+                this.$el.find('.ko-ctrl-textbox').focus();
+            }
+            this.unlock();
+        },
+    });
+
     var CheckItemView = EditableView.extend({
         tagName: 'li',
-        template: '#ko-checkitem-tmpl',
-        templateEdit: '#ko-checkitemedit-tmpl',
+        template: '#ko-tmpl-checkitem',
+        templateEdit: '#ko-tmpl-checkitemedit',
         events: {
-            'click .ko-checkbox': 'check',
-            'mousedown .ko-checkbox': 'lock',
-            'click .ko-description': 'renderEdit',
-            'blur .ko-input': 'blur',
-            'mousedown .ko-save': 'lock',
-            'click .ko-save': 'save',
-            'click .ko-delete': 'delete',
-            'mousedown .ko-delete': 'lock',
+            'click .ko-ctrl-checkbox': 'check',
+            'mousedown .ko-ctrl-checkbox': 'lock',
+            'click .ko-ctrl-content': 'renderEdit',
+            'blur .ko-ctrl-textbox': 'blur',
+            'mousedown .ko-ctrl-save': 'lock',
+            'click .ko-ctrl-save': 'save',
+            'click .ko-ctrl-delete': 'delete',
+            'mousedown .ko-ctrl-delete': 'lock',
         },
         check: function() {
             this.model.set('completed', true);
-            this.$el.find('.ko-description').addClass('completed');
+            this.$el.find('.ko-ctrl-content').addClass('completed');
             this.unlock();
             if (this.isEditMode()) {
                 this.render();
             }
-        },
-        save: function() {
-            var val = this.$el.find('.ko-input').val();
-            if (val !== '') {
-                this.model.set('description', this.$el.find('.ko-input').val());
-                this.render();
-            } else {
-                this.$el.find('.ko-input').focus();
-            }
-            this.unlock();
         },
         delete: function() {
             this.trigger('delete', this.model);
@@ -293,8 +297,9 @@
         LayoutView: LayoutView,
         ListView: ListView,
         ItemView: ItemView,
-        CheckItemView: CheckItemView,
         EditableView: EditableView,
+        AddItemView: AddItemView,
+        CheckItemView: CheckItemView,
         MultiControllerView: MultiControllerView
     };
 
@@ -304,8 +309,9 @@
         .value('MultiControllerView', MultiControllerView)
         .value('ListView', ListView)
         .value('ItemView', ItemView)
+        .value('EditableView', EditableView)
         .value('CheckItemView', CheckItemView)
-        .value('EditableView', EditableView);
+        .value('AddItemView', AddItemView);
 
     knockoff.provider.provider('router', function(controller) {
         var controllerLoader = controller;

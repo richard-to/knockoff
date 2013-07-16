@@ -27,38 +27,38 @@
             <div class="ko-view"></div>
         </div>
 
-        <script type="text/template" id="ko-main-tmpl">
-        <div class="ko-view-goal" data-ctrl="goal"></div>
-        <div class="ko-view-msg" data-ctrl="msg"></div>
+        <script type="text/template" id="ko-tmpl-main">
+        <div class="ko-view-goal" data-controller="goal"></div>
+        <div class="ko-view-msg" data-controller="msg"></div>
         </script>
 
-        <script type="text/template" id="ko-home-tmpl">
+        <script type="text/template" id="ko-tmpl-home">
         <div class="row-fluid">
         <div class="span12">
             <h1>Welcome back!</h1>
-            <p><a href="#" class="ko-link">View messages</a></p>
+            <p><a href="#" class="ko-ctrl-link">View messages</a></p>
         </div>
         </div>
         </script>
 
-        <script type="text/template" id="ko-login-tmpl">
+        <script type="text/template" id="ko-tmpl-login">
         <div class="row-fluid">
         <div class="span12">
             <h1>Sign in</h1>
-            <p><input type="text" class="ko-username-input" value="John Doe" /></p>
-            <p><input type="submit" class="ko-submit btn btn-success" value="Sign in" /></p>
+            <p><input type="text" class="ko-ctrl-textbox" value="John Doe" /></p>
+            <p><input type="submit" class="ko-ctrl-submit btn btn-success" value="Sign in" /></p>
         </div>
         </div>
         </script>
 
-        <script type="text/template" id="ko-layout-tmpl">
+        <script type="text/template" id="ko-tmpl-layout">
         <div class="ko-view-list row-fluid"></div>
         <div class="ko-view-compose row-fluid"></div>
-        <p><a href="#" class="ko-link">Go home</a></p>
+        <p><a href="#" class="ko-ctrl-link">Go home</a></p>
         </script>
 
-        <script type="text/template" id="ko-item-tmpl">
-        <div class="row-fluid ko-msg-header">
+        <script type="text/template" id="ko-tmpl-item">
+        <div class="row-fluid ko-panel-header">
             <div class="span1">
                 <p><img src="<%= avatar %>" width="40" height="40" class="img-polaroid" /></p>
             </div>
@@ -74,10 +74,10 @@
             <% if (!owner || rating == 1) { %>
             <div class="span1 ko-rating"</div>
                 <p>
-                    <button class="btn ko-upvote"><i class="icon-thumbs-up"></i></button>
+                    <button class="btn ko-ctrl-upvote"><i class="icon-thumbs-up"></i></button>
                 </p>
                 <p>
-                    <button class="btn ko-downvote"><i class="icon-thumbs-down"></i></button>
+                    <button class="btn ko-ctrl-downvote"><i class="icon-thumbs-down"></i></button>
                 </p>
             </div>
             <div class="span11">
@@ -91,58 +91,58 @@
         </div>
         </script>
 
-        <script type="text/template" id="ko-compose-tmpl">
-        <textarea class="ko-text input-block-level" rows="5"></textarea>
-        <p><input type="submit" class="ko-submit btn btn-success" value="Reply" /></p>
+        <script type="text/template" id="ko-tmpl-compose">
+        <textarea class="ko-ctrl-textarea input-block-level" rows="5"></textarea>
+        <p><input type="submit" class="ko-ctrl-submit btn btn-success" value="Reply" /></p>
         </script>
 
-        <script type="text/template" id="ko-goal-tmpl">
-            <p><input type="text" class="ko-goal-input input-block-level" value="" placeholder="Enter your goal." /></p>
+        <script type="text/template" id="ko-tmpl-goal">
+            <p><input type="text" class="ko-ctrl-textbox input-block-level" value="" placeholder="Enter your goal." /></p>
         </script>
 
-        <script type="text/template" id="ko-checkitem-tmpl">
+        <script type="text/template" id="ko-tmpl-checkitem">
             <div class="row-fluid">
                 <div class="span1">
-                    <input type="checkbox" <%= checked %> class="ko-checkbox" />
+                    <input type="checkbox" <%= checked %> class="ko-ctrl-checkbox" />
                 </div>
                 <div class="span11">
-                    <span class="ko-description"><%= description %></span>
+                    <span class="ko-ctrl-content"><%= description %></span>
                 </div>
             </div>
         </script>
 
-        <script type="text/template" id="ko-checkitemedit-tmpl">
+        <script type="text/template" id="ko-tmpl-checkitemedit">
             <div class="row-fluid">
                 <div class="span1">
-                    <input type="checkbox" <%= checked %> class="ko-checkbox" />
+                    <input type="checkbox" <%= checked %> class="ko-ctrl-checkbox" />
                 </div>
                 <div class="span11">
                     <p>
-                        <input type="text" class="ko-input" value="<%= description %>" />
+                        <input type="text" class="ko-ctrl-textbox" value="<%= description %>" />
                         <br />
-                        <button class="btn btn-success ko-save">Save</button>
-                        <button class="btn btn-link ko-delete">Delete</button>
+                        <button class="btn btn-success ko-ctrl-save">Save</button>
+                        <button class="btn btn-link ko-ctrl-delete">Delete</button>
                     </p>
                 </div>
                 <br />
             </div>
         </script>
 
-        <script type="text/template" id="ko-editable-tmpl">
+        <script type="text/template" id="ko-tmpl-editable">
             <div class="row-fluid">
-                <div class="span11 offset1 ko-description">
+                <div class="span11 offset1 ko-ctrl-content">
                     Add a task that will help you reach your goal.
                 </div>
             </div>
         </script>
 
-        <script type="text/template" id="ko-editableedit-tmpl">
+        <script type="text/template" id="ko-tmpl-editableedit">
             <div class="row-fluid">
                 <div class="span11 offset1">
                     <p>
-                        <input type="text" class="ko-input" value="" />
+                        <input type="text" class="ko-ctrl-textbox" value="" />
                         <br />
-                        <button class="btn btn-success ko-save">Save</button>
+                        <button class="btn btn-success ko-ctrl-save">Save</button>
                     </p>
                 </div>
                 <br />

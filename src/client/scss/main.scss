@@ -18,11 +18,11 @@
 	padding: 15px;
 }
 
-.ko-view-list li.collapsed {
+.ko-view-list li.ko-state-collapsed {
 	background: #fafafa;
 }
 
-.ko-view-list li.collapsed .ko-msg-body {
+.ko-view-list li.ko-state-collapsed .ko-msg-body {
 	display: none;
 }
 
@@ -30,7 +30,7 @@
 	display: none;
 }
 
-.ko-view-list li.collapsed .ko-msg-excerpt {
+.ko-view-list li.ko-state-collapsed .ko-msg-excerpt {
 	display: block;
 }
 

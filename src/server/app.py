@@ -36,7 +36,7 @@ storageGoals = [
 	{
 		'id': 0,
 		'name': 'John Doe',
-		'goal': '',
+		'goal': 'I want to create a goal',
 		'tasks': [
 			{'description': 'Task 1', 'completed': False},
 			{'description': 'Task 2', 'completed': False},

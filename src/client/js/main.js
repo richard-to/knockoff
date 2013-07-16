@@ -300,35 +300,38 @@ var LoginView = knockoff.ui.View.extend({
 });
 
 var MsgComposeView = knockoff.ui.View.extend({
-    propList: ['autosave', 'autosaveInterval'],
+    propList: ['autosave', 'autosaveInterval', 'autosaveId'],
     tagName: 'div',
     template: '#ko-tmpl-compose',
     autosave: false,
     autosaveInterval: 10000,
+    autosaveId: null,
     initialize: function() {
         _.bindAll(this, ['onFetchDraft']);
         this.model = new this.collection.model();
         this.model.fetchDraft(this.onFetchDraft);
         this.autosaveMsg();
     },
-    events: {
-        'click .ko-ctrl-submit': 'submit',
+    ctrls: {
+        submit: '.ko-ctrl-submit',
+        textarea: '.ko-ctrl-textarea'
     },
-    render: function() {
-        this.$el.html(this.template());
-        return this;
+    actions: [
+        ['submit', 'click', 'submit'],
+    ],
+    outlets: {
     },
     onFetchDraft: function(model) {
-        this.$el.find('.ko-ctrl-textarea').val(model.get('msg'));
+        this.$el.find(this.ctrls.textarea).val(model.get(this.outlets.textarea));
     },
     submit: function() {
         this.model.set({
-            msg: this.$el.find('.ko-ctrl-textarea').val(),
+            msg: this.$el.find(this.ctrls.textarea).val(),
             published: true
         });
         this.model.save();
         this.collection.add(this.model);
-        this.$el.find('.ko-ctrl-textarea').val('');
+        this.$el.find(this.ctrls.textarea).val('');
         this.model = new this.collection.model({name: this.user.get('name')});
         this.model.fetchDraft();
         return false;
@@ -336,11 +339,18 @@ var MsgComposeView = knockoff.ui.View.extend({
     autosaveMsg: function() {
         var self = this;
         if (this.autosave) {
-            setTimeout(function() {
-                self.model.save({'msg': self.$el.find('.ko-ctrl-textarea').val()});
+            this.autosaveId = setTimeout(function() {
+                self.syncModel(
+                    self.model, 'textarea',
+                    self.$el.find(this.ctrls.textarea).val());
+                self.model.save();
                 self.autosaveMsg();
             }, this.autosaveInterval);
         }
+    },
+    remove: function() {
+        clearTimeout(this.autosaveId);
+        knockoff.ui.View.prototype.remove.call(this);
     }
 });
 

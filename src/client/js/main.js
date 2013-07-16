@@ -102,9 +102,6 @@ var GoalModel = ParentModel.extend({
         'tasks': [],
         'approved': false
     },
-    methods: {
-
-    },
     tasksCollection: TaskCollection,
     tasksList: null
 });

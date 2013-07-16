@@ -379,7 +379,6 @@ knockoff.module('goalModule', ['viewService', 'appService', 'goalService'])
         var taskView = new TaskView({collection: goal.tasksList});
         var addView = new TaskAddItemView({collection: goal.tasksList});
         var layoutView = new LayoutView({
-            className: 'ko-view-goaltask',
             views: {
                 "ko-view-goal": goalView,
                 "ko-view-task": taskView,

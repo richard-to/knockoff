@@ -185,8 +185,7 @@ var GoalView = knockoff.ui.EditableView.extend({
     templateEdit: '#ko-tmpl-goaledit',
     outlets: {
         content: 'goal',
-        textbox: 'goal',
-        what: 'test',
+        textbox: 'goal'
     }
 });
 

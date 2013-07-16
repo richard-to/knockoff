@@ -241,6 +241,11 @@
         },
         editMode: false,
         editModeLock: false,
+        initialize: function() {
+            if (this.model) {
+                this.listenTo(this.model, 'change', this.render);
+            }
+        },
         render: function() {
             this.exitEditMode();
             this.unlock();

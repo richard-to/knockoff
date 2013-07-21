@@ -86,6 +86,15 @@
         ctrls: {},
         actions: [],
         outlets: {},
+        renderTo: function(parentEl) {
+            var childEl = parentEl.find('#' + this.id);
+            if (!childEl.length) {
+                parentEl.html(this.render().el);
+                this.el.id = this.id;
+            } else {
+                this.setElement(childEl);
+            }
+        },
         render: function() {
             var data = this.syncTemplate();
             this.$el.html(this.template(data));
@@ -138,6 +147,19 @@
         controllerSuffix: 'Controller',
         controllerAttr: 'data-controller',
         controllers: null,
+        renderTo: function(parentEl) {
+            var childEl = parentEl.find('#' + this.id);
+            if (!childEl.length) {
+                this.el.id = this.id;
+                parentEl.html(this.render().el);
+            } else {
+                this.setElement(childEl);
+                var templateTemp = this.template;
+                this.template = undefined;
+                this.render();
+                this.template = templateTemp;
+            }
+        },
         render: function() {
             var viewClass = null;
             var childEnv = null;
@@ -158,9 +180,12 @@
                 }
             } else {
                 for (viewClass in this.controllers) {
-                    childEl = $("<" + this.wrapperTag + "/>");
-                    childEl.addClass(viewClass);
-                    this.$el.append(childEl);
+                    childEl = this.$el.find('.' + viewClass);
+                    if(!childEl.length) {
+                        childEl = $("<" + this.wrapperTag + "/>");
+                        childEl.addClass(viewClass);
+                        this.$el.append(childEl);
+                    }
                     this.renderController(this.controllers[viewClass], childEl);
                 }
             }
@@ -183,20 +208,40 @@
         propList: ['views', 'wrapperTag'],
         wrapperTag: 'div',
         views: {},
+        renderTo: function(parentEl) {
+            var childEl = parentEl.find('#' + this.id);
+            if (!childEl.length) {
+                this.el.id = this.id;
+                parentEl.html(this.render().el);
+            } else {
+                this.setElement(childEl);
+                var templateTemp = this.template;
+                this.template = undefined;
+                this.render();
+                this.template = templateTemp;
+            }
+        },
         render: function() {
             var viewClass = null;
+            var childEl = null;
             if (this.template !== undefined) {
+                this.el.id = this.id;
                 this.$el.html(this.template());
                 for (viewClass in this.views) {
-                    this.$el.find('.' + viewClass).append(this.views[viewClass].render().el);
+                    this.views[viewClass].renderTo(this.$el.find('.' + viewClass));
                 }
             } else {
-                var childEl;
+                this.el.id = this.id;
                 for (viewClass in this.views) {
-                    childEl = $("<" + this.wrapperTag + "/>");
-                    childEl.addClass(viewClass);
-                    childEl.append(this.views[viewClass].render().el);
-                    this.$el.append(childEl);
+                    childEl = this.$el.find('.' + viewClass);
+                    if(!childEl.length) {
+                        childEl = $("<" + this.wrapperTag + "/>");
+                        childEl.addClass(viewClass);
+                        childEl.append(this.views[viewClass].render().el);
+                        this.$el.append(childEl);
+                    } else {
+                        this.views[viewClass].renderTo(childEl);
+                    }
                 }
             }
             return this;
@@ -215,6 +260,9 @@
         id: 'ItemView',
         tagName: 'li',
         template: '#ko-tmpl-item',
+        initialize: function() {
+            this.listenTo(this.model, "change", this.updateView);
+        },
         syncTemplate: function() {
             return this.model.attributes;
         },
@@ -222,6 +270,8 @@
             var data = this.syncTemplate();
             this.$el.html(this.template(data));
             return this;
+        },
+        updateView: function(model, options) {
         }
     });
 
@@ -367,11 +417,44 @@
     });
 
     var ListView = View.extend({
-        propList: ['itemView'],
+        propList: ['itemView', 'itemPrefix', 'itemDelim'],
         tagName: 'ul',
         itemView: ItemView,
+        itemPrefix: 'ItemView',
+        itemDelim: '-',
         initialize: function() {
-            this.collection.on('add', this.appendItem, this);
+            this.listenTo(this.collection, "add", this.appendItem);
+        },
+        renderTo: function(parentEl) {
+            var childEl = parentEl.find('#' + this.id);
+            if (!childEl.length) {
+                this.el.id = this.id;
+                parentEl.html(this.render().el);
+                if (this.collection.isEmpty()) {
+                    this.collection.fetch();
+                }
+            } else {
+                this.setElement(childEl);
+                this.syncCollection();
+            }
+        },
+        syncCollection: function() {
+            var self = this;
+            var view = null;
+            var idParts = null;
+            var item = null;
+            var itemEls = this.$el.find('[id^=' + self.itemPrefix + ']');
+            itemEls.each(function(index) {
+                idParts = this.id.split(self.itemDelim);
+                item = new self.collection.model({id: idParts[1]});
+                view = new self.itemView({
+                    id: this.id,
+                    model: item
+                });
+                self.collection.add(item, {silent: true});
+                view.on('delete', self.deleteItem, self);
+                view.setElement(this);
+            });
         },
         render: function() {
             var self = this;
@@ -382,6 +465,7 @@
         },
         appendItem: function(item) {
             var view = new this.itemView({
+                id: this.itemPrefix + this.itemDelim + (item.id || item.cid),
                 model: item,
             });
             view.on('delete', this.deleteItem, this);

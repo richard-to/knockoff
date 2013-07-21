@@ -382,7 +382,11 @@ knockoff.module('goalService')
     .value('GoalView', GoalView)
     .value('TaskItemView', TaskItemView)
     .value('TaskAddItemView', TaskAddItemView)
-    .value('TaskView', knockoff.ui.ListView.extend({itemView: TaskItemView}));
+    .value('TaskView', knockoff.ui.ListView.extend({
+        id: 'TaskView',
+        itemPrefix: 'TaskItemView',
+        itemView: TaskItemView
+    }));
 
 knockoff.module('goalModule', ['viewService', 'appService', 'goalService'])
     .controller('goalController', function(env, LayoutView, GoalModel, GoalView, TaskView, TaskAddItemView) {
@@ -404,24 +408,24 @@ knockoff.module('goalModule', ['viewService', 'appService', 'goalService'])
 knockoff.module('msgService')
     .value('MsgModel', MsgModel)
     .value('MsgList', MsgList)
-    .value('MsgListView', knockoff.ui.ListView.extend({itemView: MsgItemView}))
+    .value('MsgListView', knockoff.ui.ListView.extend({id: 'MsgListView', itemView: MsgItemView}))
     .value('MsgComposeView', MsgComposeView);
 
 knockoff.module('msgModule', ['viewService', 'appService', 'msgService'])
     .controller('msgController', function(env, MsgList, LayoutView, MsgListView, MsgComposeView) {
         var msgList = new MsgList();
         msgList.fetch();
-
-        var listView = new MsgListView({collection: msgList});
+        var listView = new MsgListView({itemPrefix: 'MsgItemView', collection: msgList});
         var composeView = new MsgComposeView({collection: msgList}, ['user']);
         var layoutView = new LayoutView({
+            id: 'MsgLayoutView',
             template: '#ko-tmpl-layout',
             views: {
                 "ko-view-list": listView,
                 "ko-view-compose": composeView
             }
         });
-        env.$el.html(layoutView.render().el);
+       layoutView.renderTo(env.$el);
     });
 
 knockoff.module('mainModule', ['viewService', 'msgModule', 'goalModule'])
@@ -448,12 +452,11 @@ knockoff.module('homeModule', ['appService'])
     })
     .controller('homeController', function(env, user, LoginView, HomeView) {
         if (user.isLoggedIn()) {
-            var homeView = new HomeView({});
-            env.$el.html(homeView.render().el);
+            var homeView = new HomeView();
+            homeView.renderTo(env.$el);
         } else {
             var loginView = new LoginView({model: user});
-            env.$el.html(loginView.render().el);
+            loginView.renderTo(env.$el);
         }
     });
-
 Backbone.history.start();

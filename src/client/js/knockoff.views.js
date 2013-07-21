@@ -84,7 +84,7 @@
         template: undefined,
         events: {},
         ctrls: {},
-        actions: [],
+        actions: null,
         outlets: {},
         renderTo: function(parentEl) {
             var childEl = parentEl.find('#' + this.id);
@@ -141,12 +141,13 @@
 
     var MultiControllerView = View.extend({
         id: 'MultiControllerView',
-        propList: ['env', 'controllers', 'wrapperTag', 'controllerSuffix', 'controllerAttr'],
+        propList: ['env', 'renderedViews', 'controllers', 'wrapperTag', 'controllerSuffix', 'controllerAttr'],
         inject: ['controller'],
         wrapperTag: 'div',
         controllerSuffix: 'Controller',
         controllerAttr: 'data-controller',
         controllers: null,
+        renderedViews: [],
         renderTo: function(parentEl) {
             var childEl = parentEl.find('#' + this.id);
             if (!childEl.length) {
@@ -194,9 +195,16 @@
         renderController: function(name, childEl) {
             var childEnv = this.env.addChild();
             childEnv.setEl(childEl);
-            this.controller(name, {env: childEnv});
+            var controller = this.controller(name, {env: childEnv});
+            if (controller.view) {
+                this.renderedViews.push(controller.view);
+            }
         },
         remove: function() {
+            var length = this.renderedViews.length;
+            for (var i = 0; i < length; i++) {
+                this.renderedViews[i].remove();
+            }
             this.$el.remove();
             this.stopListening();
             return this;
@@ -247,9 +255,9 @@
             return this;
         },
         remove: function() {
-            _.each(this.views, function(view, index, list) {
-                view.remove();
-            }, this);
+            for (var viewClass in this.views) {
+                this.views[viewClass].remove();
+            }
             this.$el.remove();
             this.stopListening();
             return this;
@@ -423,6 +431,7 @@
         itemPrefix: 'ItemView',
         itemDelim: '-',
         initialize: function() {
+            this.views = [];
             this.listenTo(this.collection, "add", this.appendItem);
         },
         renderTo: function(parentEl) {
@@ -454,6 +463,7 @@
                 self.collection.add(item, {silent: true});
                 view.on('delete', self.deleteItem, self);
                 view.setElement(this);
+                self.views.push(view);
             });
         },
         render: function() {
@@ -470,9 +480,19 @@
             });
             view.on('delete', this.deleteItem, this);
             this.$el.append(view.render().el);
+            this.views.push(view);
         },
         deleteItem: function(item) {
             this.collection.remove(item);
+        },
+        remove: function() {
+            var length = this.views.length;
+            for (var i = 0; i < length; i++) {
+                this.views[i].remove();
+            }
+            this.$el.remove();
+            this.stopListening();
+            return this;
         }
     });
 
@@ -503,7 +523,12 @@
         var view = null;
         this.add = function(route, name, controllerName) {
             router.route(route, name, function() {
-                controllerLoader(controllerName);
+                if (view !== null) {
+                    view.remove();
+                    view = null;
+                }
+                var controller = controllerLoader(controllerName);
+                view = controller.view || null;
             });
         };
 

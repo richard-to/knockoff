@@ -402,7 +402,8 @@ knockoff.module('goalModule', ['viewService', 'appService', 'goalService'])
                 'ko-view-add': addView
             }
         });
-        env.$el.html(layoutView.render().el);
+        layoutView.renderTo(env.$el);
+        this.view = layoutView;
     });
 
 knockoff.module('msgService')
@@ -425,7 +426,8 @@ knockoff.module('msgModule', ['viewService', 'appService', 'msgService'])
                 "ko-view-compose": composeView
             }
         });
-       layoutView.renderTo(env.$el);
+        layoutView.renderTo(env.$el);
+        this.view = layoutView;
     });
 
 knockoff.module('mainModule', ['viewService', 'msgModule', 'goalModule'])
@@ -438,7 +440,8 @@ knockoff.module('mainModule', ['viewService', 'msgModule', 'goalModule'])
                 env: env,
                 template: '#ko-tmpl-main'
             });
-            env.$el.html(view.render().el);
+            view.renderTo(env.$el);
+            this.view = view;
         } else {
             router.navigate('', {trigger: true});
         }
@@ -451,12 +454,13 @@ knockoff.module('homeModule', ['appService'])
         routerProvider.add('', 'home', 'homeController');
     })
     .controller('homeController', function(env, user, LoginView, HomeView) {
+        var view = null;
         if (user.isLoggedIn()) {
-            var homeView = new HomeView();
-            homeView.renderTo(env.$el);
+            view = new HomeView();
         } else {
-            var loginView = new LoginView({model: user});
-            loginView.renderTo(env.$el);
+            view = new LoginView({model: user});
         }
+        view.renderTo(env.$el);
+        this.view = view;
     });
 Backbone.history.start();

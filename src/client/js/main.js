@@ -348,7 +348,7 @@ var MsgComposeView = knockoff.ui.View.extend({
             this.autosaveId = setTimeout(function() {
                 self.syncModel(
                     self.model, 'textarea',
-                    self.$el.find(this.ctrls.textarea).val());
+                    self.$el.find(self.ctrls.textarea).val());
                 self.model.save();
                 self.autosaveMsg();
             }, this.autosaveInterval);

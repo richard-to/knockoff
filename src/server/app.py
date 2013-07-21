@@ -162,13 +162,17 @@ def api_msgs_rate(msg_id):
 def api_msgs_save(msg_id):
 	data = json.loads(request.data)
 	msg = save_msg(data)
-	return json.dumps(msg_to_view_model(msg, session['user']))
+	data = msg_to_view_model(msg, session['user'])
+	data['collapsed'] = False
+	return json.dumps(data)
 
 @app.route('/api/msgs', methods=['POST'])
 def api_msgs_new():
 	data = json.loads(request.data)
 	msg = save_msg(data)
-	return json.dumps(msg_to_view_model(msg, session['user']))
+	data = msg_to_view_model(msg, session['user'])
+	data['collapsed'] = False
+	return json.dumps(data)
 
 @app.route('/api/msgs')
 def api_msgs():

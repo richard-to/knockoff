@@ -181,6 +181,7 @@ var MsgList = Backbone.Collection.extend({
 });
 
 var GoalView = knockoff.ui.EditableView.extend({
+    id: 'GoalView',
     template: '#ko-tmpl-goal',
     templateEdit: '#ko-tmpl-goaledit',
     outlets: {
@@ -190,6 +191,7 @@ var GoalView = knockoff.ui.EditableView.extend({
 });
 
 var MsgItemView = knockoff.ui.ItemView.extend({
+    id: 'MsgItemView',
     ctrls: {
         rating: '.ko-ctrl-rating',
         upvote: '.ko-ctrl-upvote',
@@ -257,6 +259,7 @@ var MsgItemView = knockoff.ui.ItemView.extend({
 });
 
 var HomeView = knockoff.ui.View.extend({
+    id: 'HomeView',
     inject: ['router'],
     tagName: 'div',
     template: '#ko-tmpl-home',
@@ -276,6 +279,7 @@ var HomeView = knockoff.ui.View.extend({
 });
 
 var LoginView = knockoff.ui.View.extend({
+    id: 'LoginView',
     inject: ['router'],
     tagName: 'div',
     template: '#ko-tmpl-login',
@@ -300,6 +304,7 @@ var LoginView = knockoff.ui.View.extend({
 });
 
 var MsgComposeView = knockoff.ui.View.extend({
+    id: 'MsgComposeView',
     propList: ['autosave', 'autosaveInterval', 'autosaveId'],
     tagName: 'div',
     template: '#ko-tmpl-compose',

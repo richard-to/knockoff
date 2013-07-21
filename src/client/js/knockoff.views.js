@@ -36,6 +36,8 @@
 
         options = options || {};
 
+        this.id = options.id || this.id;
+
         this.inject = _.union(this.inject || [], inject || []);
         for (var i = 0; i < this.inject.length; ++i) {
             options[this.inject[i]] = this.injector.getDep(this.inject[i]);
@@ -78,6 +80,7 @@
     };
     _.extend(View.prototype, Backbone.View.prototype, {
         propList: [],
+        id: 'View',
         template: undefined,
         events: {},
         ctrls: {},
@@ -128,6 +131,7 @@
     View.extend = Backbone.View.extend;
 
     var MultiControllerView = View.extend({
+        id: 'MultiControllerView',
         propList: ['env', 'controllers', 'wrapperTag', 'controllerSuffix', 'controllerAttr'],
         inject: ['controller'],
         wrapperTag: 'div',
@@ -175,6 +179,7 @@
     });
 
     var LayoutView = View.extend({
+        id: 'LayoutView',
         propList: ['views', 'wrapperTag'],
         wrapperTag: 'div',
         views: {},
@@ -207,6 +212,7 @@
     });
 
     var ItemView = View.extend({
+        id: 'ItemView',
         tagName: 'li',
         template: '#ko-tmpl-item',
         syncTemplate: function() {
@@ -220,6 +226,7 @@
     });
 
     var EditableView = View.extend({
+        id: 'EditableView',
         propList: ['templateEdit'],
         tagName: 'div',
         template: '#ko-tmpl-editable',
@@ -298,6 +305,7 @@
     });
 
     var AddItemView = EditableView.extend({
+        id: 'AddItemView',
         save: function() {
             var textbox = this.$el.find(this.ctrls.textbox);
             var val = textbox.val();
@@ -314,6 +322,7 @@
     });
 
     var CheckItemView = EditableView.extend({
+        id: 'CheckItemView',
         tagName: 'li',
         template: '#ko-tmpl-checkitem',
         templateEdit: '#ko-tmpl-checkitemedit',

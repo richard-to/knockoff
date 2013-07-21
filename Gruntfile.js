@@ -70,11 +70,15 @@ module.exports = function(grunt) {
 
         concat: {
             templates: {
-                src: ['src/server/templates/index.html'],
-                dest: '<%= distdir %>/templates/index.html',
-                options: {
-                    process: false
-                }
+                files: [
+                    {
+                        src: ['src/server/templates/index.html'],
+                        dest: '<%= distdir %>/templates/index.html',
+                        options: {
+                            process: false
+                        }
+                    }
+                ]
             }
         },
 

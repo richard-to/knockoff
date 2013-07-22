@@ -128,6 +128,7 @@ def api_goal_update(goal_id):
 	data = json.loads(request.data)
 	storageGoals[goal_id] = data
 	return json.dumps(goal_to_view_model(storageGoals[goal_id], session['user']))
+
 # Msg api
 # -------
 
@@ -152,11 +153,11 @@ def api_msgs_draft():
 		storageMsg.append(draft)
 	return json.dumps(msg_to_view_model(draft, session['user']))
 
-@app.route('/api/msgs/<int:msg_id>/rate', methods=['PUT'])
+@app.route('/api/msgs/<int:msg_id>/rate', methods=['PATCH'])
 def api_msgs_rate(msg_id):
 	data = json.loads(request.data)
 	storageMsg[msg_id]['rating'] = data['rating']
-	return json.dumps(msg_to_view_model(storageMsg[msg_id], session['user']))
+	return json.dumps(data)
 
 @app.route('/api/msgs/<int:msg_id>', methods=['PUT'])
 def api_msgs_save(msg_id):

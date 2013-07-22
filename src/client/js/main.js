@@ -1,7 +1,7 @@
 var UserModel = Backbone.Model.extend({
     urlRoot: '/api/users',
     methods: {
-        'login': 'login'
+        login: 'login'
     },
     defaults: {
         'name': '',
@@ -11,9 +11,9 @@ var UserModel = Backbone.Model.extend({
     isLoggedIn: function() {
         return this.get('isLoggedIn');
     },
-    login: function(successFn, errorFn) {
+    login: function(data, successFn, errorFn) {
         var model = this;
-        return this.save({}, {
+        return this.save(data, {
             url: this.urlRoot + "/" + this.methods.login,
             success: function(model, resp) {
                 if (successFn) {
@@ -109,8 +109,9 @@ var GoalModel = ParentModel.extend({
 var MsgModel = Backbone.Model.extend({
     urlRoot: '/api/msgs',
     methods: {
-        'fetchDraft': 'draft',
-        'rate': 'rate'
+        fetchDraft: 'draft',
+        rate: 'rate',
+        autosave: 'autosave'
     },
     defaults: {
         'name': '',
@@ -144,6 +145,15 @@ var MsgModel = Backbone.Model.extend({
     isDownvote: function() {
         return this.get('rating') === 0;
     },
+    autosave: function(msg) {
+        if (this.get('msg') !== msg) {
+            var model = this;
+            this.save({msg: msg}, {
+                patch: true,
+                url: this.urlRoot + "/" + model.id + "/" + this.methods.autosave
+            });
+        }
+    },
     upvote: function(successFn, errorFn) {
         return this.rate(1, '', successFn, errorFn);
     },
@@ -153,6 +163,7 @@ var MsgModel = Backbone.Model.extend({
     rate: function(rating, reason, successFn, errorFn) {
         var model = this;
         return this.save({rating: rating}, {
+            patch: true,
             url: this.urlRoot + "/" + model.id + "/" + this.methods.rate,
             success: function(model, resp) {
                 if (successFn) {
@@ -203,6 +214,14 @@ var MsgItemView = knockoff.ui.ItemView.extend({
         ['downvote', 'click', 'downvote'],
         ['header', 'click', 'collapse']
     ],
+    listeners: {
+        'event:upvote': function(model) {
+            model.upvote();
+        },
+        'event:downvote': function(model) {
+            model.downvote();
+        }
+    },
     syncTemplate: function() {
         return this.model.attributes;
     },
@@ -234,8 +253,8 @@ var MsgItemView = knockoff.ui.ItemView.extend({
         if (this.$el.find(this.ctrls.rating + '.' + this.states.disabled).size() > 0) {
             return;
         }
-        this.model.upvote();
         this.renderUpvote();
+        this.trigger('event:upvote', this.model);
     },
     renderUpvote: function() {
         this.$el.find(this.ctrls.rating).addClass(this.states.disabled);
@@ -247,8 +266,8 @@ var MsgItemView = knockoff.ui.ItemView.extend({
         if (this.$el.find(this.ctrls.rating + '.' + this.states.disabled).size() > 0) {
             return;
         }
-        this.model.downvote();
         this.renderDownvote();
+        this.trigger('event:downvote', this.model);
     },
     renderDownvote: function() {
         this.$el.find(this.ctrls.rating).addClass(this.states.disabled);
@@ -293,13 +312,18 @@ var LoginView = knockoff.ui.View.extend({
     outlets: {
         textbox: 'name'
     },
+    listeners: {
+        'event:submit': function(model, attrs) {
+            var router = this.router;
+            model.login(attrs, function(model) {
+                router.navigate('msg', {trigger: true});
+            });
+        }
+    },
     submit: function() {
-        var router = this.router;
         var val = this.$el.find(this.ctrls.textbox).val();
-        this.syncModel(this.model, 'textbox', val);
-        this.model.login(function(model) {
-            router.navigate('msg', {trigger: true});
-        });
+        var attrs = this.syncAttrs({'textbox': val});
+        this.trigger('event:submit', this.model, attrs);
     }
 });
 
@@ -308,8 +332,8 @@ var MsgComposeView = knockoff.ui.View.extend({
     propList: ['autosave', 'autosaveInterval', 'autosaveId'],
     tagName: 'div',
     template: '#ko-tmpl-compose',
-    autosave: false,
-    autosaveInterval: 10000,
+    autosave: true,
+    autosaveInterval: 5000,
     autosaveId: null,
     initialize: function() {
         _.bindAll(this, ['onFetchDraft']);
@@ -327,18 +351,28 @@ var MsgComposeView = knockoff.ui.View.extend({
     outlets: {
         textarea: 'msg'
     },
+    listeners: {
+        'event:submit': function(model, attrs) {
+            attrs.published = true;
+            this.model.save(attrs);
+        },
+        'event:autosave': function(model, attrs) {
+            model.autosave(attrs[this.outlets.textarea]);
+        }
+    },
     onFetchDraft: function(model) {
         this.$el.find(this.ctrls.textarea).val(model.get(this.outlets.textarea));
     },
     submit: function() {
-        this.model.set({
-            msg: this.$el.find(this.ctrls.textarea).val(),
-            published: true
+        var attrs = this.syncAttrs({
+            'textarea': this.$el.find(this.ctrls.textarea).val()
         });
-        this.model.save();
+        this.trigger('event:submit', this.model, attrs);
         this.collection.add(this.model);
+
         this.$el.find(this.ctrls.textarea).val('');
-        this.model = new this.collection.model({name: this.user.get('name')});
+
+        this.model = new this.collection.model();
         this.model.fetchDraft();
         return false;
     },
@@ -346,10 +380,10 @@ var MsgComposeView = knockoff.ui.View.extend({
         var self = this;
         if (this.autosave) {
             this.autosaveId = setTimeout(function() {
-                self.syncModel(
-                    self.model, 'textarea',
-                    self.$el.find(self.ctrls.textarea).val());
-                self.model.save();
+                var attrs = self.syncAttrs({
+                    'textarea': self.$el.find(self.ctrls.textarea).val()
+                });
+                self.trigger('event:autosave', self.model, attrs);
                 self.autosaveMsg();
             }, this.autosaveInterval);
         }

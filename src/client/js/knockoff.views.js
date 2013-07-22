@@ -57,6 +57,11 @@
         this.actions = options.actions || this.actions;
         this.outlets = options.outlets || this.outlets;
 
+        this.listeners = options.listeners || this.listeners;
+        for (var listener in this.listeners) {
+            this.on(listener, this.listeners[listener], this);
+        }
+
         MixinActionsToEvents.apply(this, []);
 
         this.states = options.states || this.states;
@@ -85,6 +90,7 @@
         events: {},
         ctrls: {},
         actions: null,
+        listeners: {},
         outlets: {},
         renderTo: function(parentEl) {
             var childEl = parentEl.find('#' + this.id);
@@ -129,12 +135,15 @@
             }
             return output;
         },
-        syncModel: function(model, name, value) {
-            var attr = this.outlets[name];
-            if (attr) {
-                model.set(attr, value);
+        syncAttrs: function(data) {
+            var attrs = {};
+            for (var name in data) {
+                var attr = this.outlets[name];
+                if (attr) {
+                    attrs[attr] = data[name];
+                }
             }
-            return model;
+            return attrs;
         }
     });
     View.extend = Backbone.View.extend;
@@ -335,7 +344,8 @@
             var textbox = this.$el.find(this.ctrls.textbox);
             var val = textbox.val();
             if (val !== '') {
-                this.syncModel(this.model, 'textbox', val);
+                var attrs = this.syncAttrs({textbox: val});
+                this.model.set(attrs);
                 this.render();
             } else {
                 textbox.focus();
@@ -369,7 +379,8 @@
             var val = textbox.val();
             if (val !== '') {
                 var model = new this.collection.model();
-                this.syncModel(model, 'textbox', val);
+                var attrs = this.syncAttrs({textbox: val});
+                model.set(attrs);
                 this.collection.add(model);
                 this.render();
             } else {

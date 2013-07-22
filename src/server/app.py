@@ -159,6 +159,12 @@ def api_msgs_rate(msg_id):
 	storageMsg[msg_id]['rating'] = data['rating']
 	return json.dumps(data)
 
+@app.route('/api/msgs/<int:msg_id>/autosave', methods=['PATCH'])
+def api_msgs_autosave(msg_id):
+	data = json.loads(request.data)
+	storageMsg[msg_id]['msg'] = data['msg']
+	return json.dumps(data)
+
 @app.route('/api/msgs/<int:msg_id>', methods=['PUT'])
 def api_msgs_save(msg_id):
 	data = json.loads(request.data)
